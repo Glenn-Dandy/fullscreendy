@@ -1,5 +1,7 @@
 package de.kewl.fullscreendy.ui
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import de.kewl.fullscreendy.BuildConfig
 import de.kewl.fullscreendy.i18n.LocalStrings
 
 /** Einfache Titelleiste mit Zurück-Button für die Unterseiten. */
@@ -62,15 +65,20 @@ fun PinDialog(
         onDismissRequest = onDismiss,
         title = { Text(s.pinTitle) },
         text = {
-            OutlinedTextField(
-                value = pin,
-                onValueChange = { pin = it.filter(Char::isDigit).take(8); error = false },
-                label = { Text(if (error) s.pinWrong else s.pinEnter) },
-                isError = error,
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                visualTransformation = PasswordVisualTransformation()
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = pin,
+                    onValueChange = { pin = it.filter(Char::isDigit).take(8); error = false },
+                    label = { Text(if (error) s.pinWrong else s.pinEnter) },
+                    isError = error,
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                    visualTransformation = PasswordVisualTransformation()
+                )
+                if (BuildConfig.DEV) {
+                    Text(s.pinDefaultHint, style = MaterialTheme.typography.bodySmall)
+                }
+            }
         },
         confirmButton = {
             TextButton(onClick = {

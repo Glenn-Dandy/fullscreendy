@@ -22,8 +22,9 @@ android {
         applicationId = "de.kewl.fullscreendy"
         minSdk = 29
         targetSdk = 35
-        versionCode = 11
+        versionCode = 12
         versionName = "0.4.4"
+        buildConfigField("boolean", "DEV", "false") // Default für alle Varianten; dev überschreibt
     }
 
     signingConfigs {
@@ -46,6 +47,14 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        // Dev-Build: gleicher Keystore/R8, aber Version "-dev.N" und BuildConfig.DEV=true.
+        // Bauen: gradle assembleDev -PdevNum=N
+        create("dev") {
+            initWith(getByName("release"))
+            val devNum = (project.findProperty("devNum") ?: "1").toString()
+            versionNameSuffix = "-dev.$devNum"
+            buildConfigField("boolean", "DEV", "true")
         }
     }
 

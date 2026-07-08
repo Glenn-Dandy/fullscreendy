@@ -87,12 +87,6 @@ class MainActivity : ComponentActivity() {
         repo = SettingsRepository(applicationContext)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        // Fenster über dem Sperrbildschirm zeigen und beim Anschalten sofort in den
-        // Vordergrund holen → beim Aufwecken kein Wallpaper/Lockscreen-Blitzen.
-        runCatching {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-        }
         requestPermissions()
         startKioskService()
 
@@ -178,7 +172,6 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun KioskContent(repo: SettingsRepository, settings: Settings) {
         val s = LocalStrings.current
-        val mqttConnected by KioskStatus.mqttConnected.collectAsState()
         val scope = rememberCoroutineScope()
         val webController = rememberWebController()
         val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -224,15 +217,10 @@ class MainActivity : ComponentActivity() {
                     KioskCommand.Reload -> webController.reload()
                     KioskCommand.ClearCache -> webController.clearCache()
                     is KioskCommand.Screen -> {
-                        if (cmd.on) {
-                            // Kam aus dem Abdunkeln/Aus: Fenster über Lockscreen nach vorn
-                            // holen, damit sofort das Dashboard erscheint (kein Wallpaper).
-                            if (overlayVisible) unlockDevice()
-                            overlayVisible = false
-                            activityNonce++
-                        } else {
-                            overlayVisible = true
-                        }
+                        // Nur Overlay entfernen/setzen – KEIN Keyguard-Eingriff beim Wecken
+                        // (das holte in 0.4.4 den Wischcode nach vorn). Entsperren nur via cmd/unlock.
+                        overlayVisible = !cmd.on
+                        if (cmd.on) activityNonce++ // Abdunkel-Timer neu starten
                     }
                     is KioskCommand.Brightness -> brightness = cmd.level
                     KioskCommand.Unlock -> unlockDevice()
@@ -247,7 +235,6 @@ class MainActivity : ComponentActivity() {
             gesturesEnabled = drawerState.isOpen,
             drawerContent = {
                 AppDrawer(
-                    connected = mqttConnected,
                     onDashboard = { closeDrawer(); page = AppPage.Dashboard },
                     onReload = { closeDrawer(); webController.reload() },
                     onClearCache = { closeDrawer(); webController.clearCache() },
@@ -352,7 +339,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun AppDrawer(
-    connected: Boolean,
     onDashboard: () -> Unit,
     onReload: () -> Unit,
     onClearCache: () -> Unit,
@@ -363,23 +349,9 @@ private fun AppDrawer(
 ) {
     val s = LocalStrings.current
     ModalDrawerSheet(modifier = Modifier.width(320.dp)) {
-        Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text("FullScreendy", style = MaterialTheme.typography.headlineSmall)
             Text("${s.version} ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall)
-            Spacer(Modifier.size(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(12.dp)
-                        .clip(CircleShape)
-                        .background(if (connected) Color(0xFF4CAF50) else Color(0xFF9E9E9E))
-                )
-                Spacer(Modifier.width(10.dp))
-                Text(
-                    if (connected) s.statusConnected else s.statusDisconnected,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
         }
         HorizontalDivider()
 

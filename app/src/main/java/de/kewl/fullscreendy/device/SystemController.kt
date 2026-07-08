@@ -94,6 +94,10 @@ object SystemController {
     /** Fallback, falls der direkte Geräteadmin-Dialog nicht verfügbar ist. */
     fun securitySettingsIntent(): Intent = Intent(Settings.ACTION_SECURITY_SETTINGS)
 
+    /** App-Info-Seite (dort Kamera/Mikrofon prüfen/entziehen). */
+    fun appDetailsIntent(ctx: Context): Intent =
+        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${ctx.packageName}"))
+
     /** true, wenn die App beliebige Dateien lesen darf (für den Sound-Ordner). */
     fun hasAllFilesAccess(): Boolean =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) Environment.isExternalStorageManager()

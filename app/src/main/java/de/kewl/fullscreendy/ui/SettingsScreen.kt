@@ -77,6 +77,12 @@ fun SettingsScreen(
     var draft by remember { mutableStateOf(initial) }
     var section by remember { mutableStateOf(Section.Home) }
 
+    // Auto-Speichern: ~1 s nach der letzten Änderung persistieren (kein Save-Button).
+    LaunchedEffect(draft) {
+        delay(1000)
+        onPersist(draft)
+    }
+
     val title = when (section) {
         Section.Home -> s.settings
         Section.Connection -> s.secConnection
@@ -93,9 +99,7 @@ fun SettingsScreen(
                 onBack = {
                     if (section == Section.Home) { onPersist(draft); onExit() } else section = Section.Home
                 }
-            ) {
-                TextButton(onClick = { onPersist(draft) }) { Text(s.save) }
-            }
+            )
 
             Column(
                 modifier = Modifier
@@ -385,11 +389,18 @@ private fun SystemSection(draft: Settings, s: Strings, onChange: (Settings) -> U
         modifier = Modifier.fillMaxWidth()
     ) { Text(if (adminActive) s.adminActive else s.enableDeviceAdmin) }
     OutlinedButton(
-        onClick = { if (!cameraOk) cameraLauncher.launch(Manifest.permission.CAMERA) },
+        onClick = {
+            // Nicht erteilt → Laufzeit-Abfrage; erteilt → zur App-Info (prüfen/entziehen).
+            if (cameraOk) open(SystemController.appDetailsIntent(context))
+            else cameraLauncher.launch(Manifest.permission.CAMERA)
+        },
         modifier = Modifier.fillMaxWidth()
     ) { Text(if (cameraOk) s.cameraActive else s.allowCamera) }
     OutlinedButton(
-        onClick = { if (!micOk) micLauncher.launch(Manifest.permission.RECORD_AUDIO) },
+        onClick = {
+            if (micOk) open(SystemController.appDetailsIntent(context))
+            else micLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        },
         modifier = Modifier.fillMaxWidth()
     ) { Text(if (micOk) s.micActive else s.allowMic) }
     OutlinedButton(

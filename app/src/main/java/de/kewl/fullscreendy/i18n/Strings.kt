@@ -135,6 +135,7 @@ class Strings(private val lang: AppLang) {
     val pinTitle get() = t("Admin PIN", "Admin-PIN")
     val pinEnter get() = t("Enter PIN", "PIN eingeben")
     val pinWrong get() = t("Wrong PIN", "Falsche PIN")
+    val pinDefaultHint get() = t("Default: 0000", "Standard: 0000")
 }
 
 val LocalStrings = staticCompositionLocalOf { Strings(AppLang.EN) }
