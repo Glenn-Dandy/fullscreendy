@@ -23,6 +23,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <uses-feature android:name="android.hardware.camera.any" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
@@ -56,7 +58,11 @@
         <service
             android:name=".service.KioskService"
             android:exported="false"
-            android:foregroundServiceType="camera|microphone|dataSync" />
+            android:foregroundServiceType="camera|microphone|dataSync|specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Smart-home kiosk: keeps the MQTT connection to FHEM alive and reacts to remote commands (TTS, screen, sounds)." />
+        </service>
 
         <receiver
             android:name=".AdminReceiver"

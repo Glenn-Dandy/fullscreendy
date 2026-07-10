@@ -342,6 +342,7 @@ private fun SystemSection(draft: Settings, s: Strings, onChange: (Settings) -> U
     var fileOk by remember { mutableStateOf(SystemController.hasAllFilesAccess()) }
     var cameraOk by remember { mutableStateOf(hasPerm(Manifest.permission.CAMERA)) }
     var micOk by remember { mutableStateOf(hasPerm(Manifest.permission.RECORD_AUDIO)) }
+    var batteryOk by remember { mutableStateOf(SystemController.isIgnoringBatteryOptimizations(context)) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -352,6 +353,7 @@ private fun SystemSection(draft: Settings, s: Strings, onChange: (Settings) -> U
                 fileOk = SystemController.hasAllFilesAccess()
                 cameraOk = hasPerm(Manifest.permission.CAMERA)
                 micOk = hasPerm(Manifest.permission.RECORD_AUDIO)
+                batteryOk = SystemController.isIgnoringBatteryOptimizations(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -411,6 +413,10 @@ private fun SystemSection(draft: Settings, s: Strings, onChange: (Settings) -> U
         onClick = { open(SystemController.allFilesAccessIntent(context)) },
         modifier = Modifier.fillMaxWidth()
     ) { Text(if (fileOk) s.fileAccessActive else s.allowFileAccess) }
+    OutlinedButton(
+        onClick = { open(SystemController.batteryOptIntent(context)) },
+        modifier = Modifier.fillMaxWidth()
+    ) { Text(if (batteryOk) s.batteryOptActive else s.allowBatteryOpt) }
 }
 
 @Composable

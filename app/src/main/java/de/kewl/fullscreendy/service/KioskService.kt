@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
@@ -26,6 +27,7 @@ import de.kewl.fullscreendy.device.MotionDetector
 import de.kewl.fullscreendy.device.SoundDetector
 import de.kewl.fullscreendy.device.SystemController
 import de.kewl.fullscreendy.device.TtsManager
+import de.kewl.fullscreendy.diag.DiagLog
 import de.kewl.fullscreendy.kiosk.KioskBus
 import de.kewl.fullscreendy.kiosk.KioskCommand
 import de.kewl.fullscreendy.kiosk.KioskStatus
@@ -62,6 +64,9 @@ class KioskService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        DiagLog.init(applicationContext)
+        DiagLog.log(TAG, "Service onCreate (batteryOptIgnoriert=" +
+            "${SystemController.isIgnoringBatteryOptimizations(this)})")
         repo = SettingsRepository(applicationContext)
         tts = TtsManager(applicationContext)
         media = MediaManager(applicationContext)
@@ -73,6 +78,21 @@ class KioskService : LifecycleService() {
                 applySettings(s)
             }
         }
+        // Heartbeat: alle 30 min eine Log-Zeile → Todeszeitpunkt lässt sich eingrenzen.
+        lifecycleScope.launch {
+            var mins = 0
+            while (true) {
+                kotlinx.coroutines.delay(30 * 60_000L)
+                mins += 30
+                DiagLog.log(TAG, "Heartbeat – Dienst läuft seit ${mins} min")
+            }
+        }
+    }
+
+    /** Android 15: Timeout für zeitbegrenzte FGS-Typen (z. B. dataSync) – loggen! */
+    override fun onTimeout(startId: Int) {
+        DiagLog.log(TAG, "FGS onTimeout(startId=$startId) – System beendet den Diensttyp!")
+        super.onTimeout(startId)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -189,6 +209,8 @@ class KioskService : LifecycleService() {
             publish("$dt/appVersion", DeviceInfo.appVersion, retained = true)
             publish("$dt/androidVersion", DeviceInfo.androidVersion, retained = true)
             publish("$dt/ip", DeviceInfo.ipv4(), retained = true)
+            // Grund des letzten Prozess-Endes (CRASH/ANR/LOW_MEMORY/…) – für Ferndiagnose.
+            publish("$dt/lastExit", DiagLog.lastExit, retained = true)
         }
         lastBattery?.let { publishBattery(it) }
         publishScreen(screenOn)
@@ -346,7 +368,12 @@ class KioskService : LifecycleService() {
             .setOngoing(true)
             .build()
 
-        var type = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+        // specialUse (API 34+) statt dataSync: dataSync wird auf Android 15 nach ~6 h
+        // pro Tag hart beendet (onTimeout) – das riss im Dauerbetrieb die App ab.
+        var type = if (Build.VERSION.SDK_INT >= 34)
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+        else
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
         if (camera) type = type or ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA
         if (microphone) type = type or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
         runCatching { ServiceCompat.startForeground(this, FullScreendyApp.NOTIF_ID, notif, type) }
@@ -354,6 +381,7 @@ class KioskService : LifecycleService() {
     }
 
     override fun onDestroy() {
+        DiagLog.log(TAG, "Service onDestroy")
         val dt = settings.deviceTopic
         mqtt?.publish("$dt/status", "offline", retained = true, qos = 1)
         mqtt?.disconnect()

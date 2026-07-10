@@ -262,6 +262,27 @@ Einstellungen liegen in Jetpack DataStore; alle Topics werden daraus abgeleitet.
 
 ---
 
+## Dauerbetrieb & Diagnose
+
+Für 24/7-Betrieb:
+1. *Einstellungen → System → Berechtigungen → **Akku-Optimierung deaktivieren*** –
+   sonst kann Android die App nach Stunden beenden.
+2. Der Dienst nutzt den FGS-Typ **specialUse** (Android 14+) – der frühere Typ
+   `dataSync` wurde von Android 15 nach ~6 h pro Tag hart beendet.
+
+Wenn die App dennoch „irgendwann weg" ist:
+- **MQTT-Reading `lastExit`** zeigt nach dem Neustart den Grund des letzten
+  Prozess-Endes (z. B. `CRASH`, `ANR`, `LOW_MEMORY`, `USER_REQUESTED`, `SYGNALED`).
+- **Log-Datei** mit Heartbeat (alle 30 min), Start/Stopp und Crash-Stacktraces:
+  `Android/data/de.kewl.fullscreendy/files/logs/app.log` (per „Dateizugriff
+  erlauben" + Dateimanager oder `adb pull` erreichbar).
+
+**Grüner Punkt in der Statusleiste:** Das ist Androids Datenschutz-Indikator –
+er zeigt an, dass die Kamera (Bewegungserkennung) aktiv ist. Er lässt sich von
+Apps nicht ausblenden; er verschwindet nur, wenn die Bewegungserkennung aus ist.
+
+---
+
 ## Updates
 Die App prüft beim Öffnen von *Über* die GitHub-Releases: stabile Builds suchen das
 neueste stabile Release, Dev-Builds auch Pre-Releases. Gibt es eine neuere Version,

@@ -8,6 +8,7 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -97,6 +98,18 @@ object SystemController {
     /** App-Info-Seite (dort Kamera/Mikrofon prüfen/entziehen). */
     fun appDetailsIntent(ctx: Context): Intent =
         Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${ctx.packageName}"))
+
+    /** Ist die App von der Akku-Optimierung ausgenommen? (wichtig für 24/7-Betrieb) */
+    fun isIgnoringBatteryOptimizations(ctx: Context): Boolean =
+        ctx.getSystemService(PowerManager::class.java)
+            ?.isIgnoringBatteryOptimizations(ctx.packageName) == true
+
+    @Suppress("BatteryLife")
+    fun batteryOptIntent(ctx: Context): Intent =
+        Intent(
+            Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+            Uri.parse("package:${ctx.packageName}")
+        )
 
     /** true, wenn die App beliebige Dateien lesen darf (für den Sound-Ordner). */
     fun hasAllFilesAccess(): Boolean =

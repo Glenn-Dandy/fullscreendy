@@ -120,6 +120,8 @@ class Strings(private val lang: AppLang) {
     val cameraActive get() = t("Camera allowed ✓", "Kamera erlaubt ✓")
     val allowMic get() = t("Allow microphone (sound)", "Mikrofon erlauben (Ton)")
     val micActive get() = t("Microphone allowed ✓", "Mikrofon erlaubt ✓")
+    val allowBatteryOpt get() = t("Disable battery optimization (24/7)", "Akku-Optimierung deaktivieren (24/7)")
+    val batteryOptActive get() = t("Battery optimization disabled ✓", "Akku-Optimierung deaktiviert ✓")
     val openFailed get() = t("Could not open system settings", "Systemeinstellungen konnten nicht geöffnet werden")
 
     // Über
