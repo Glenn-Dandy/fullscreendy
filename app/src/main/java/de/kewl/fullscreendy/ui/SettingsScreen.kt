@@ -220,7 +220,7 @@ private fun DisplaySection(draft: Settings, s: Strings, onChange: (Settings) -> 
     SliderRow(
         label = s.offAfter,
         value = draft.screenOffSecs,
-        max = 1800,
+        max = 600,
         suffix = " s",
         zeroLabel = s.off
     ) { onChange(draft.copy(screenOffSecs = it)) }

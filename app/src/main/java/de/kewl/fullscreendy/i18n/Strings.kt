@@ -125,6 +125,16 @@ class Strings(private val lang: AppLang) {
     // Über
     val about get() = t("About", "Über")
     val githubRepo get() = t("Project on GitHub ↗", "Projekt auf GitHub ↗")
+    val updateChecking get() = t("Checking for updates…", "Suche nach Updates…")
+    val updateUpToDate get() = t("You have the latest version", "Du hast die neueste Version")
+    val updateAvailable get() = t("Update available:", "Update verfügbar:")
+    val updateInstall get() = t("Download & install", "Herunterladen & installieren")
+    val updateDownloading get() = t("Downloading…", "Wird heruntergeladen…")
+    val updateError get() = t("Update check failed", "Update-Prüfung fehlgeschlagen")
+    val updateAllowInstall get() = t(
+        "Please allow installing unknown apps, then tap again.",
+        "Bitte Installation unbekannter Apps erlauben, dann erneut tippen."
+    )
     val appVersionLabel get() = t("App version", "App-Version")
     val androidVersionLabel get() = t("Android version", "Android-Version")
     val ipAddressLabel get() = t("IP address", "IP-Adresse")

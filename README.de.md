@@ -262,6 +262,14 @@ Einstellungen liegen in Jetpack DataStore; alle Topics werden daraus abgeleitet.
 
 ---
 
+## Updates
+Die App prüft beim Öffnen von *Über* die GitHub-Releases: stabile Builds suchen das
+neueste stabile Release, Dev-Builds auch Pre-Releases. Gibt es eine neuere Version,
+kannst du sie direkt aus der „Über"-Seite **herunterladen und installieren** (einmalig
+„Unbekannte Apps installieren" erlauben).
+
+---
+
 ## Lizenz
 
 [MIT](LICENSE) © Glenn-Dandy. Nutzung, Änderung und Weitergabe (auch kommerziell)

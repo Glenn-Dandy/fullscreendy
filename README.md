@@ -256,6 +256,13 @@ Settings live in Jetpack DataStore; all topics are derived from them.
 
 ---
 
+## Updates
+The app checks GitHub Releases when you open *About*: stable builds look for the latest
+stable release, dev builds also consider pre-releases. If a newer version exists you can
+**download and install** it right from the About screen (allow “install unknown apps” once).
+
+---
+
 ## License
 
 [MIT](LICENSE) © Glenn-Dandy. Free to use, modify and distribute (including
