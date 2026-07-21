@@ -46,7 +46,9 @@ Prebuilt signed APKs are on the [Releases page](https://github.com/Glenn-Dandy/f
    - *Connection*: **dashboard URL** (e.g. `http://192.168.1.10:8083/fhem/floorplan/Home`),
      an optional **dashboard login** (user/password for a password-protected dashboard,
      e.g. FHEM `basicAuth` – sent as HTTP Basic Auth, cleaner than `user:pass@` in the URL),
-     **MQTT host/port** (+ optional user/password/TLS), **base topic** (default
+     **allow self-signed certificates** (enable if the dashboard uses HTTPS with a
+     self-signed/invalid certificate, e.g. local FHEM – off by default; only use on your
+     own LAN), **MQTT host/port** (+ optional user/password/TLS), **base topic** (default
      `fhem/tablet`) and **device ID** (default `tablet1`)
    - *System*: language and admin PIN (default `0000`)
 3. Tap **Save** at the top, then go back → the dashboard is shown.

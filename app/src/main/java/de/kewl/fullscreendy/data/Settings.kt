@@ -8,6 +8,8 @@ data class Settings(
     /** Optionaler HTTP-Basic-Auth-Login fürs Dashboard (z. B. FHEM basicAuth); leer = keiner. */
     val dashboardUser: String = "",
     val dashboardPass: String = "",
+    /** HTTPS mit selbst-signiertem/ungültigem Zertifikat zulassen (unsicher, daher Standard aus). */
+    val allowInvalidCerts: Boolean = false,
     val mqttHost: String = "",
     val mqttPort: Int = 1883,
     val mqttTls: Boolean = false,

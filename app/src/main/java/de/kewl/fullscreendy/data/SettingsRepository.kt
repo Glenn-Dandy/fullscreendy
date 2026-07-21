@@ -19,6 +19,7 @@ class SettingsRepository(private val context: Context) {
         val DASHBOARD_URL = stringPreferencesKey("dashboard_url")
         val DASHBOARD_USER = stringPreferencesKey("dashboard_user")
         val DASHBOARD_PASS = stringPreferencesKey("dashboard_pass")
+        val ALLOW_INVALID_CERTS = booleanPreferencesKey("allow_invalid_certs")
         val MQTT_HOST = stringPreferencesKey("mqtt_host")
         val MQTT_PORT = intPreferencesKey("mqtt_port")
         val MQTT_TLS = booleanPreferencesKey("mqtt_tls")
@@ -51,6 +52,7 @@ class SettingsRepository(private val context: Context) {
             dashboardUrl = p[Keys.DASHBOARD_URL] ?: defaults.dashboardUrl,
             dashboardUser = p[Keys.DASHBOARD_USER] ?: defaults.dashboardUser,
             dashboardPass = p[Keys.DASHBOARD_PASS] ?: defaults.dashboardPass,
+            allowInvalidCerts = p[Keys.ALLOW_INVALID_CERTS] ?: defaults.allowInvalidCerts,
             mqttHost = p[Keys.MQTT_HOST] ?: defaults.mqttHost,
             mqttPort = p[Keys.MQTT_PORT] ?: defaults.mqttPort,
             mqttTls = p[Keys.MQTT_TLS] ?: defaults.mqttTls,
@@ -83,6 +85,7 @@ class SettingsRepository(private val context: Context) {
             p[Keys.DASHBOARD_URL] = s.dashboardUrl
             p[Keys.DASHBOARD_USER] = s.dashboardUser
             p[Keys.DASHBOARD_PASS] = s.dashboardPass
+            p[Keys.ALLOW_INVALID_CERTS] = s.allowInvalidCerts
             p[Keys.MQTT_HOST] = s.mqttHost
             p[Keys.MQTT_PORT] = s.mqttPort
             p[Keys.MQTT_TLS] = s.mqttTls

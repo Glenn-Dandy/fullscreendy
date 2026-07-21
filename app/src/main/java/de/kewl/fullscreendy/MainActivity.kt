@@ -317,6 +317,7 @@ class MainActivity : ComponentActivity() {
                         settings.zoomEnabled,
                         settings.dashboardUser,
                         settings.dashboardPass,
+                        settings.allowInvalidCerts,
                     ) {
                         KioskWebView(
                             url = settings.dashboardUrl,
@@ -326,6 +327,7 @@ class MainActivity : ComponentActivity() {
                             pullToRefresh = settings.pullToRefresh,
                             authUser = settings.dashboardUser,
                             authPass = settings.dashboardPass,
+                            allowInvalidCerts = settings.allowInvalidCerts,
                             modifier = Modifier.fillMaxSize()
                         )
                     }

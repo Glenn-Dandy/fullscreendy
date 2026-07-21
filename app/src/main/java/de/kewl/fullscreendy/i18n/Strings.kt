@@ -58,6 +58,11 @@ class Strings(private val lang: AppLang) {
     )
     val dashboardUser get() = t("Login user", "Login-Benutzer")
     val dashboardPass get() = t("Login password", "Login-Passwort")
+    val allowInvalidCerts get() = t("Allow self-signed certificates", "Selbst-signierte Zertifikate erlauben")
+    val allowInvalidCertsHint get() = t(
+        "Enable for a local HTTPS dashboard with a self-signed/invalid certificate (e.g. FHEM). Insecure over untrusted networks – only use on your own LAN.",
+        "Für ein lokales HTTPS-Dashboard mit selbst-signiertem/ungültigem Zertifikat aktivieren (z. B. FHEM). In fremden Netzen unsicher – nur im eigenen LAN nutzen."
+    )
     val mqttBroker get() = t("MQTT broker", "MQTT-Broker")
     val host get() = t("Host / IP", "Host / IP")
     val port get() = t("Port", "Port")

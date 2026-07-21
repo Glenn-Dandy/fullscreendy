@@ -155,6 +155,10 @@ private fun ConnectionSection(draft: Settings, s: Strings, onChange: (Settings) 
         visualTransformation = PasswordVisualTransformation(),
         modifier = Modifier.fillMaxWidth()
     )
+    SwitchRow(s.allowInvalidCerts, draft.allowInvalidCerts) {
+        onChange(draft.copy(allowInvalidCerts = it))
+    }
+    Text(s.allowInvalidCertsHint, style = MaterialTheme.typography.bodySmall)
     HorizontalDivider()
     Text(s.mqttBroker, style = MaterialTheme.typography.titleMedium)
     OutlinedTextField(

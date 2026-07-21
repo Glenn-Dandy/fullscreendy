@@ -47,7 +47,9 @@ Fertige signierte APKs gibt es auf der [Releases-Seite](https://github.com/Glenn
    - *Verbindung*: **Dashboard-URL** (z. B. `http://192.168.1.10:8083/fhem/floorplan/Wohnung`),
      optional ein **Dashboard-Login** (Benutzer/Passwort für ein passwortgeschütztes
      Dashboard, z. B. FHEM `basicAuth` – als HTTP Basic Auth gesendet, sauberer als
-     `user:pass@` in der URL), **MQTT-Host/Port** (+ ggf. Benutzer/Passwort/TLS),
+     `user:pass@` in der URL), **selbst-signierte Zertifikate erlauben** (aktivieren, wenn
+     das Dashboard HTTPS mit selbst-signiertem/ungültigem Zertifikat nutzt, z. B. lokales
+     FHEM – standardmäßig aus; nur im eigenen LAN nutzen), **MQTT-Host/Port** (+ ggf. Benutzer/Passwort/TLS),
      **Basis-Topic** (Standard `fhem/tablet`) und **Geräte-ID** (Standard `tablet1`)
    - *System*: Sprache und Admin-PIN (Standard `0000`)
 3. Oben **Speichern**, dann zurück → das Dashboard wird angezeigt.

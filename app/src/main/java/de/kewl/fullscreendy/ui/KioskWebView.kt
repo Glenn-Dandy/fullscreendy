@@ -45,6 +45,7 @@ fun KioskWebView(
     pullToRefresh: Boolean,
     authUser: String = "",
     authPass: String = "",
+    allowInvalidCerts: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     AndroidView(
@@ -74,6 +75,17 @@ fun KioskWebView(
                     ) {
                         if (authUser.isNotBlank()) handler.proceed(authUser, authPass)
                         else handler.cancel()
+                    }
+
+                    // Selbst-signierte/ungültige HTTPS-Zertifikate (z. B. FHEM lokal):
+                    // nur laden, wenn der Nutzer es bewusst erlaubt hat. Sonst Standard
+                    // (Abbruch) – ein ungeprüftes proceed() wäre ein MITM-Risiko.
+                    override fun onReceivedSslError(
+                        view: WebView,
+                        handler: android.webkit.SslErrorHandler,
+                        error: android.net.http.SslError
+                    ) {
+                        if (allowInvalidCerts) handler.proceed() else handler.cancel()
                     }
                 }
                 webChromeClient = WebChromeClient()
