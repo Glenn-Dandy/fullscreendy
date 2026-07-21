@@ -17,6 +17,8 @@ class SettingsRepository(private val context: Context) {
 
     private object Keys {
         val DASHBOARD_URL = stringPreferencesKey("dashboard_url")
+        val DASHBOARD_USER = stringPreferencesKey("dashboard_user")
+        val DASHBOARD_PASS = stringPreferencesKey("dashboard_pass")
         val MQTT_HOST = stringPreferencesKey("mqtt_host")
         val MQTT_PORT = intPreferencesKey("mqtt_port")
         val MQTT_TLS = booleanPreferencesKey("mqtt_tls")
@@ -47,6 +49,8 @@ class SettingsRepository(private val context: Context) {
         val defaults = Settings()
         Settings(
             dashboardUrl = p[Keys.DASHBOARD_URL] ?: defaults.dashboardUrl,
+            dashboardUser = p[Keys.DASHBOARD_USER] ?: defaults.dashboardUser,
+            dashboardPass = p[Keys.DASHBOARD_PASS] ?: defaults.dashboardPass,
             mqttHost = p[Keys.MQTT_HOST] ?: defaults.mqttHost,
             mqttPort = p[Keys.MQTT_PORT] ?: defaults.mqttPort,
             mqttTls = p[Keys.MQTT_TLS] ?: defaults.mqttTls,
@@ -77,6 +81,8 @@ class SettingsRepository(private val context: Context) {
     suspend fun save(s: Settings) {
         context.dataStore.edit { p ->
             p[Keys.DASHBOARD_URL] = s.dashboardUrl
+            p[Keys.DASHBOARD_USER] = s.dashboardUser
+            p[Keys.DASHBOARD_PASS] = s.dashboardPass
             p[Keys.MQTT_HOST] = s.mqttHost
             p[Keys.MQTT_PORT] = s.mqttPort
             p[Keys.MQTT_TLS] = s.mqttTls

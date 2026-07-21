@@ -20,9 +20,9 @@ android {
 
     defaultConfig {
         applicationId = "de.kewl.fullscreendy"
-        minSdk = 29
+        minSdk = 28
         targetSdk = 35
-        versionCode = 15
+        versionCode = 16
         versionName = "0.4.4"
         buildConfigField("boolean", "DEV", "false") // Default für alle Varianten; dev überschreibt
     }

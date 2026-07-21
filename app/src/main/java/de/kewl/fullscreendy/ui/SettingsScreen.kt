@@ -138,6 +138,23 @@ private fun ConnectionSection(draft: Settings, s: Strings, onChange: (Settings) 
         singleLine = true,
         modifier = Modifier.fillMaxWidth()
     )
+    Text(s.dashboardLogin, style = MaterialTheme.typography.titleMedium)
+    Text(s.dashboardLoginHint, style = MaterialTheme.typography.bodySmall)
+    OutlinedTextField(
+        value = draft.dashboardUser,
+        onValueChange = { onChange(draft.copy(dashboardUser = it)) },
+        label = { Text(s.dashboardUser) },
+        singleLine = true,
+        modifier = Modifier.fillMaxWidth()
+    )
+    OutlinedTextField(
+        value = draft.dashboardPass,
+        onValueChange = { onChange(draft.copy(dashboardPass = it)) },
+        label = { Text(s.dashboardPass) },
+        singleLine = true,
+        visualTransformation = PasswordVisualTransformation(),
+        modifier = Modifier.fillMaxWidth()
+    )
     HorizontalDivider()
     Text(s.mqttBroker, style = MaterialTheme.typography.titleMedium)
     OutlinedTextField(
@@ -351,7 +368,7 @@ private fun SystemSection(draft: Settings, s: Strings, onChange: (Settings) -> U
     // Status aller Berechtigungen – wird bei Rückkehr in die App aktualisiert.
     var adminActive by remember { mutableStateOf(SystemController.isAdminActive(context)) }
     var brightnessOk by remember { mutableStateOf(SystemController.canWriteSettings(context)) }
-    var fileOk by remember { mutableStateOf(SystemController.hasAllFilesAccess()) }
+    var fileOk by remember { mutableStateOf(SystemController.hasAllFilesAccess(context)) }
     var cameraOk by remember { mutableStateOf(hasPerm(Manifest.permission.CAMERA)) }
     var micOk by remember { mutableStateOf(hasPerm(Manifest.permission.RECORD_AUDIO)) }
     var batteryOk by remember { mutableStateOf(SystemController.isIgnoringBatteryOptimizations(context)) }
@@ -363,7 +380,7 @@ private fun SystemSection(draft: Settings, s: Strings, onChange: (Settings) -> U
             if (event == Lifecycle.Event.ON_RESUME) {
                 adminActive = SystemController.isAdminActive(context)
                 brightnessOk = SystemController.canWriteSettings(context)
-                fileOk = SystemController.hasAllFilesAccess()
+                fileOk = SystemController.hasAllFilesAccess(context)
                 cameraOk = hasPerm(Manifest.permission.CAMERA)
                 micOk = hasPerm(Manifest.permission.RECORD_AUDIO)
                 batteryOk = SystemController.isIgnoringBatteryOptimizations(context)
@@ -380,6 +397,10 @@ private fun SystemSection(draft: Settings, s: Strings, onChange: (Settings) -> U
     val micLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted -> micOk = granted }
+    // Android < 11: Sound-Ordner braucht die klassische Storage-Laufzeitberechtigung.
+    val storageLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted -> fileOk = granted }
 
     // WICHTIG: aus der Activity OHNE FLAG_ACTIVITY_NEW_TASK starten – sonst bricht
     // der Geräteadmin-Dialog (der ein Ergebnis erwartet) sofort ab und kehrt zurück.
@@ -424,7 +445,17 @@ private fun SystemSection(draft: Settings, s: Strings, onChange: (Settings) -> U
         modifier = Modifier.fillMaxWidth()
     ) { Text(if (brightnessOk) s.brightnessActive else s.allowBrightness) }
     OutlinedButton(
-        onClick = { open(SystemController.allFilesAccessIntent(context)) },
+        onClick = {
+            // Ab Android 11: „Alle Dateien"-Systemseite. Darunter (Android 9/10):
+            // klassische Laufzeit-Abfrage, sonst App-Info zum Prüfen/Entziehen.
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                open(SystemController.allFilesAccessIntent(context))
+            } else if (!fileOk) {
+                storageLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            } else {
+                open(SystemController.appDetailsIntent(context))
+            }
+        },
         modifier = Modifier.fillMaxWidth()
     ) { Text(if (fileOk) s.fileAccessActive else s.allowFileAccess) }
     OutlinedButton(

@@ -43,6 +43,8 @@ fun KioskWebView(
     ignoreSystemFontScale: Boolean,
     zoomEnabled: Boolean,
     pullToRefresh: Boolean,
+    authUser: String = "",
+    authPass: String = "",
     modifier: Modifier = Modifier,
 ) {
     AndroidView(
@@ -60,6 +62,18 @@ fun KioskWebView(
 
                     override fun onPageFinished(view: WebView, url: String) {
                         (view.parent as? SwipeRefreshLayout)?.isRefreshing = false
+                    }
+
+                    // FHEM/Dashboard-Login per HTTP Basic Auth: sauberer als
+                    // user:pass in der URL (die sonst im Klartext im MQTT-Reading landet).
+                    override fun onReceivedHttpAuthRequest(
+                        view: WebView,
+                        handler: android.webkit.HttpAuthHandler,
+                        host: String?,
+                        realm: String?
+                    ) {
+                        if (authUser.isNotBlank()) handler.proceed(authUser, authPass)
+                        else handler.cancel()
                     }
                 }
                 webChromeClient = WebChromeClient()

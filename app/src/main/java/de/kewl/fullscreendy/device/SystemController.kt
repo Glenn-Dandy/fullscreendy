@@ -111,10 +111,16 @@ object SystemController {
             Uri.parse("package:${ctx.packageName}")
         )
 
-    /** true, wenn die App beliebige Dateien lesen darf (für den Sound-Ordner). */
-    fun hasAllFilesAccess(): Boolean =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) Environment.isExternalStorageManager()
-        else true // < Android 11: klassische Speicherberechtigung genügt
+    /** true, wenn die App den Sound-Ordner lesen darf. Ab Android 11 „Alle Dateien",
+     *  darunter (z. B. Android 9/10) die klassische READ_EXTERNAL_STORAGE-Laufzeitberechtigung. */
+    fun hasAllFilesAccess(ctx: Context): Boolean =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Environment.isExternalStorageManager()
+        } else {
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                ctx, android.Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        }
 
     fun allFilesAccessIntent(ctx: Context): Intent =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

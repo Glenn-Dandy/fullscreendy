@@ -51,6 +51,13 @@ class Strings(private val lang: AppLang) {
 
     // Verbindung
     val dashboardUrl get() = t("Dashboard URL (http/https)", "Dashboard-URL (http/https)")
+    val dashboardLogin get() = t("Dashboard login (optional)", "Dashboard-Login (optional)")
+    val dashboardLoginHint get() = t(
+        "For a password-protected dashboard (e.g. FHEM basicAuth). Leave empty for none. Cleaner than user:pass in the URL.",
+        "Für ein passwortgeschütztes Dashboard (z. B. FHEM basicAuth). Leer = keiner. Sauberer als user:pass in der URL."
+    )
+    val dashboardUser get() = t("Login user", "Login-Benutzer")
+    val dashboardPass get() = t("Login password", "Login-Passwort")
     val mqttBroker get() = t("MQTT broker", "MQTT-Broker")
     val host get() = t("Host / IP", "Host / IP")
     val port get() = t("Port", "Port")

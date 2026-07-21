@@ -5,6 +5,9 @@ package de.kewl.fullscreendy.data
  */
 data class Settings(
     val dashboardUrl: String = "",
+    /** Optionaler HTTP-Basic-Auth-Login fürs Dashboard (z. B. FHEM basicAuth); leer = keiner. */
+    val dashboardUser: String = "",
+    val dashboardPass: String = "",
     val mqttHost: String = "",
     val mqttPort: Int = 1883,
     val mqttTls: Boolean = false,

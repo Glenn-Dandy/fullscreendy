@@ -26,7 +26,8 @@ Requires **Android Studio** (Ladybug or newer) with Android SDK 35.
 
 1. In Android Studio: *File → Open* → select this folder (`fullscreendy`).
 2. Wait for the Gradle sync (downloads AGP 8.7, Kotlin 2.1, dependencies).
-3. *Run* on a device/emulator (Android 10+), or build an APK:
+3. *Run* on a device/emulator (**Android 9+**, API 28 – also runs on Fire OS 7 /
+   Fire HD tablets), or build an APK:
    *Build → Build Bundle(s)/APK(s) → Build APK(s)*.
 
 ```bash
@@ -43,6 +44,8 @@ Prebuilt signed APKs are on the [Releases page](https://github.com/Glenn-Dandy/f
 1. Launch the app. As no URL is configured yet, **Settings** open right away.
 2. Enter:
    - *Connection*: **dashboard URL** (e.g. `http://192.168.1.10:8083/fhem/floorplan/Home`),
+     an optional **dashboard login** (user/password for a password-protected dashboard,
+     e.g. FHEM `basicAuth` – sent as HTTP Basic Auth, cleaner than `user:pass@` in the URL),
      **MQTT host/port** (+ optional user/password/TLS), **base topic** (default
      `fhem/tablet`) and **device ID** (default `tablet1`)
    - *System*: language and admin PIN (default `0000`)

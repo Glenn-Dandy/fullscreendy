@@ -135,6 +135,10 @@ class MainActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             needed += Manifest.permission.POST_NOTIFICATIONS
         }
+        // Android < 11: klassische Storage-Berechtigung für den Sound-Ordner.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            needed += Manifest.permission.READ_EXTERNAL_STORAGE
+        }
         val missing = needed.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }
@@ -306,13 +310,22 @@ class MainActivity : ComponentActivity() {
                         }
                 ) {
                     // Dashboard-WebView ist immer vorhanden; Unterseiten legen sich darüber.
-                    key(settings.ignoreSystemFontScale, settings.zoomEnabled) {
+                    // Login-Daten fließen in den key ein, damit der Auth-Handler bei
+                    // Änderung neu greift (er fängt die Werte beim Erstellen ab).
+                    key(
+                        settings.ignoreSystemFontScale,
+                        settings.zoomEnabled,
+                        settings.dashboardUser,
+                        settings.dashboardPass,
+                    ) {
                         KioskWebView(
                             url = settings.dashboardUrl,
                             controller = webController,
                             ignoreSystemFontScale = settings.ignoreSystemFontScale,
                             zoomEnabled = settings.zoomEnabled,
                             pullToRefresh = settings.pullToRefresh,
+                            authUser = settings.dashboardUser,
+                            authPass = settings.dashboardPass,
                             modifier = Modifier.fillMaxSize()
                         )
                     }

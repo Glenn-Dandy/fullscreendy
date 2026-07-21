@@ -26,7 +26,8 @@ Voraussetzung: **Android Studio** (Ladybug o. neuer) mit Android SDK 35.
 
 1. In Android Studio: *File → Open* → diesen Ordner (`fullscreendy`) wählen.
 2. Gradle-Sync abwarten (lädt AGP 8.7, Kotlin 2.1, Abhängigkeiten).
-3. *Run* auf ein Gerät/Emulator (Android 10+), oder APK bauen:
+3. *Run* auf ein Gerät/Emulator (**Android 9+**, API 28 – läuft auch auf Fire OS 7 /
+   Fire-HD-Tablets), oder APK bauen:
    *Build → Build Bundle(s)/APK(s) → Build APK(s)*.
 
 ```bash
@@ -44,8 +45,10 @@ Fertige signierte APKs gibt es auf der [Releases-Seite](https://github.com/Glenn
    **Einstellungen**.
 2. Eintragen:
    - *Verbindung*: **Dashboard-URL** (z. B. `http://192.168.1.10:8083/fhem/floorplan/Wohnung`),
-     **MQTT-Host/Port** (+ ggf. Benutzer/Passwort/TLS), **Basis-Topic** (Standard
-     `fhem/tablet`) und **Geräte-ID** (Standard `tablet1`)
+     optional ein **Dashboard-Login** (Benutzer/Passwort für ein passwortgeschütztes
+     Dashboard, z. B. FHEM `basicAuth` – als HTTP Basic Auth gesendet, sauberer als
+     `user:pass@` in der URL), **MQTT-Host/Port** (+ ggf. Benutzer/Passwort/TLS),
+     **Basis-Topic** (Standard `fhem/tablet`) und **Geräte-ID** (Standard `tablet1`)
    - *System*: Sprache und Admin-PIN (Standard `0000`)
 3. Oben **Speichern**, dann zurück → das Dashboard wird angezeigt.
 
