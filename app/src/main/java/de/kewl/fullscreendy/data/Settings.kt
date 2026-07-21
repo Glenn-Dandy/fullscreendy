@@ -27,6 +27,8 @@ data class Settings(
     val mediaEnabled: Boolean = true,
     val zoomEnabled: Boolean = false,
     val pullToRefresh: Boolean = true,
+    /** Dashboard periodisch neu laden (setzt WebView-Speicher zurück); Minuten, 0 = aus. */
+    val reloadIntervalMins: Int = 360,
     val startOnBoot: Boolean = true,
     /** UI-Sprache: "en" (Standard) oder "de". */
     val language: String = "en",

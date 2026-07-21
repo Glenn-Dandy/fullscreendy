@@ -224,6 +224,18 @@ private fun DisplaySection(draft: Settings, s: Strings, onChange: (Settings) -> 
         suffix = " s",
         zeroLabel = s.off
     ) { onChange(draft.copy(screenOffSecs = it)) }
+
+    HorizontalDivider()
+    Text(s.autoReload, style = MaterialTheme.typography.titleMedium)
+    Text(s.autoReloadHint, style = MaterialTheme.typography.bodySmall)
+    // Slider in Stunden (1-h-Schritte); intern als Minuten gespeichert.
+    SliderRow(
+        label = s.reloadEvery,
+        value = draft.reloadIntervalMins / 60,
+        max = 24,
+        suffix = s.hoursShort,
+        zeroLabel = s.off
+    ) { onChange(draft.copy(reloadIntervalMins = it * 60)) }
 }
 
 @Composable
@@ -343,6 +355,7 @@ private fun SystemSection(draft: Settings, s: Strings, onChange: (Settings) -> U
     var cameraOk by remember { mutableStateOf(hasPerm(Manifest.permission.CAMERA)) }
     var micOk by remember { mutableStateOf(hasPerm(Manifest.permission.RECORD_AUDIO)) }
     var batteryOk by remember { mutableStateOf(SystemController.isIgnoringBatteryOptimizations(context)) }
+    var overlayOk by remember { mutableStateOf(SystemController.canDrawOverlays(context)) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -354,6 +367,7 @@ private fun SystemSection(draft: Settings, s: Strings, onChange: (Settings) -> U
                 cameraOk = hasPerm(Manifest.permission.CAMERA)
                 micOk = hasPerm(Manifest.permission.RECORD_AUDIO)
                 batteryOk = SystemController.isIgnoringBatteryOptimizations(context)
+                overlayOk = SystemController.canDrawOverlays(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -417,6 +431,10 @@ private fun SystemSection(draft: Settings, s: Strings, onChange: (Settings) -> U
         onClick = { open(SystemController.batteryOptIntent(context)) },
         modifier = Modifier.fillMaxWidth()
     ) { Text(if (batteryOk) s.batteryOptActive else s.allowBatteryOpt) }
+    OutlinedButton(
+        onClick = { open(SystemController.overlaySettingsIntent(context)) },
+        modifier = Modifier.fillMaxWidth()
+    ) { Text(if (overlayOk) s.overlayActive else s.allowOverlay) }
 }
 
 @Composable

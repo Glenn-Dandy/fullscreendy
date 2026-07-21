@@ -37,6 +37,7 @@ class SettingsRepository(private val context: Context) {
         val MEDIA_ENABLED = booleanPreferencesKey("media_enabled")
         val ZOOM_ENABLED = booleanPreferencesKey("zoom_enabled")
         val PULL_TO_REFRESH = booleanPreferencesKey("pull_to_refresh")
+        val RELOAD_INTERVAL = intPreferencesKey("reload_interval_mins")
         val START_ON_BOOT = booleanPreferencesKey("start_on_boot")
         val LANGUAGE = stringPreferencesKey("language")
         val ADMIN_PIN = stringPreferencesKey("admin_pin")
@@ -66,6 +67,7 @@ class SettingsRepository(private val context: Context) {
             mediaEnabled = p[Keys.MEDIA_ENABLED] ?: defaults.mediaEnabled,
             zoomEnabled = p[Keys.ZOOM_ENABLED] ?: defaults.zoomEnabled,
             pullToRefresh = p[Keys.PULL_TO_REFRESH] ?: defaults.pullToRefresh,
+            reloadIntervalMins = p[Keys.RELOAD_INTERVAL] ?: defaults.reloadIntervalMins,
             startOnBoot = p[Keys.START_ON_BOOT] ?: defaults.startOnBoot,
             language = p[Keys.LANGUAGE] ?: defaults.language,
             adminPin = p[Keys.ADMIN_PIN] ?: defaults.adminPin,
@@ -95,6 +97,7 @@ class SettingsRepository(private val context: Context) {
             p[Keys.MEDIA_ENABLED] = s.mediaEnabled
             p[Keys.ZOOM_ENABLED] = s.zoomEnabled
             p[Keys.PULL_TO_REFRESH] = s.pullToRefresh
+            p[Keys.RELOAD_INTERVAL] = s.reloadIntervalMins
             p[Keys.START_ON_BOOT] = s.startOnBoot
             p[Keys.LANGUAGE] = s.language
             p[Keys.ADMIN_PIN] = s.adminPin

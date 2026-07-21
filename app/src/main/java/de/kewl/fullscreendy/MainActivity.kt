@@ -2,8 +2,10 @@ package de.kewl.fullscreendy
 
 import android.Manifest
 import android.app.KeyguardManager
+import android.content.ComponentCallbacks2
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
@@ -35,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -49,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
@@ -57,6 +61,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import de.kewl.fullscreendy.data.Settings
 import de.kewl.fullscreendy.data.SettingsRepository
 import de.kewl.fullscreendy.device.SystemController
+import de.kewl.fullscreendy.diag.DiagLog
 import de.kewl.fullscreendy.i18n.AppLang
 import de.kewl.fullscreendy.i18n.LocalStrings
 import de.kewl.fullscreendy.i18n.Strings
@@ -226,6 +231,40 @@ class MainActivity : ComponentActivity() {
                     KioskCommand.Unlock -> unlockDevice()
                 }
             }
+        }
+        // Periodischer Reload: setzt den über Tage wachsenden WebView-Speicher
+        // (DOM/JS/Bild-Cache) zurück – der größte Hebel gegen LOW_MEMORY im Dauerbetrieb.
+        LaunchedEffect(settings.reloadIntervalMins) {
+            val mins = settings.reloadIntervalMins
+            if (mins > 0) {
+                while (true) {
+                    delay(mins * 60_000L)
+                    webController.reload()
+                    DiagLog.log("Reload", "Periodischer WebView-Reload (alle ${mins} min)")
+                }
+            }
+        }
+        // Bei Speicherdruck des Systems proaktiv den WebView-Speicher freigeben –
+        // senkt die Chance, dass Android die App als Erstes killt.
+        val appContext = LocalContext.current.applicationContext
+        DisposableEffect(webController) {
+            val cb = object : ComponentCallbacks2 {
+                override fun onConfigurationChanged(newConfig: Configuration) {}
+                @Deprecated("Deprecated in Java") override fun onLowMemory() {}
+                override fun onTrimMemory(level: Int) {
+                    if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) {
+                        webController.webView?.let { wv ->
+                            wv.post {
+                                wv.clearCache(false)
+                                @Suppress("DEPRECATION") wv.freeMemory()
+                            }
+                        }
+                        DiagLog.log("Mem", "onTrimMemory($level) – WebView-Speicher freigegeben")
+                    }
+                }
+            }
+            appContext.registerComponentCallbacks(cb)
+            onDispose { appContext.unregisterComponentCallbacks(cb) }
         }
 
         fun closeDrawer() = scope.launch { drawerState.close() }

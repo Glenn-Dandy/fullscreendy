@@ -46,6 +46,20 @@ object DiagLog {
         }
     }
 
+    /**
+     * Momentaufnahme der Speicherlage (App-Heap + System-RAM) für den Heartbeat –
+     * damit sich ein Speicher-Kill (LOW_MEMORY) im Log als Trend ablesen lässt.
+     */
+    fun memorySnapshot(ctx: Context): String {
+        val rt = Runtime.getRuntime()
+        val usedMb = (rt.totalMemory() - rt.freeMemory()) / (1024 * 1024)
+        val maxMb = rt.maxMemory() / (1024 * 1024)
+        val mi = ActivityManager.MemoryInfo()
+        runCatching { ctx.getSystemService(ActivityManager::class.java)?.getMemoryInfo(mi) }
+        val availMb = mi.availMem / (1024 * 1024)
+        return "heap=${usedMb}/${maxMb}MB frei=${availMb}MB lowMemory=${mi.lowMemory}"
+    }
+
     private fun readLastExit(ctx: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
         runCatching {

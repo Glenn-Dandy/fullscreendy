@@ -78,6 +78,13 @@ class Strings(private val lang: AppLang) {
         "Nach noch längerer Inaktivität den Bildschirm ganz ausschalten (benötigt Geräteadmin). Dann weckt nur Berührung/Power/Befehl – Bewegung nicht."
     )
     val offAfter get() = t("Off after", "Aus nach")
+    val autoReload get() = t("Periodic reload", "Periodischer Reload")
+    val autoReloadHint get() = t(
+        "Reloads the dashboard regularly to free up memory (prevents the app being killed after days). Off = never.",
+        "Lädt das Dashboard regelmäßig neu, um Speicher freizugeben (verhindert, dass die App nach Tagen beendet wird). Aus = nie."
+    )
+    val reloadEvery get() = t("Reload every", "Neu laden alle")
+    val hoursShort get() = t(" h", " h")
 
     // Verhalten
     val motionDetection get() = t("Motion detection (camera)", "Bewegungserkennung (Kamera)")
@@ -122,6 +129,8 @@ class Strings(private val lang: AppLang) {
     val micActive get() = t("Microphone allowed ✓", "Mikrofon erlaubt ✓")
     val allowBatteryOpt get() = t("Disable battery optimization (24/7)", "Akku-Optimierung deaktivieren (24/7)")
     val batteryOptActive get() = t("Battery optimization disabled ✓", "Akku-Optimierung deaktiviert ✓")
+    val allowOverlay get() = t("Allow display over other apps (auto-recover)", "Über anderen Apps anzeigen (Auto-Wiederherstellung)")
+    val overlayActive get() = t("Display over other apps active ✓", "Über anderen Apps aktiv ✓")
     val openFailed get() = t("Could not open system settings", "Systemeinstellungen konnten nicht geöffnet werden")
 
     // Über

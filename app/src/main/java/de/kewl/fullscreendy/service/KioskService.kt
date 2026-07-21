@@ -78,13 +78,15 @@ class KioskService : LifecycleService() {
                 applySettings(s)
             }
         }
-        // Heartbeat: alle 30 min eine Log-Zeile → Todeszeitpunkt lässt sich eingrenzen.
+        // Heartbeat: alle 30 min eine Log-Zeile inkl. Speicherlage → Todeszeitpunkt UND
+        // Speicher-Trend (Richtung LOW_MEMORY) lassen sich später ablesen.
         lifecycleScope.launch {
             var mins = 0
             while (true) {
                 kotlinx.coroutines.delay(30 * 60_000L)
                 mins += 30
-                DiagLog.log(TAG, "Heartbeat – Dienst läuft seit ${mins} min")
+                DiagLog.log(TAG, "Heartbeat – Dienst läuft seit ${mins} min – " +
+                    DiagLog.memorySnapshot(applicationContext))
             }
         }
     }
@@ -97,10 +99,30 @@ class KioskService : LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+        // Ein NULL-Intent bedeutet: das System hat den Dienst nach einem Kill über
+        // START_STICKY selbst neu gestartet. Dabei kommt aber NUR der Dienst zurück –
+        // die Kiosk-Activity (WebView) nicht. Deshalb holen wir die Anzeige aktiv zurück,
+        // sonst bleibt der Bildschirm nach LOW_MEMORY schwarz/„nicht aufweckbar".
+        if (intent == null) relaunchUi()
         // Von der Activity beim Fokus ausgelöst: Kamera/Mikrofon-Detektoren (neu)
         // starten, wenn die App im Vordergrund ist (im Hintergrund oft blockiert).
         if (intent?.action == ACTION_REFRESH) startDetectors(settings)
         return START_STICKY
+    }
+
+    /** Startet die Kiosk-Activity aus dem Hintergrund neu (braucht Overlay-Berechtigung). */
+    private fun relaunchUi() {
+        if (!SystemController.canDrawOverlays(this)) {
+            DiagLog.log(TAG, "Cold-Restart: UI-Neustart übersprungen (keine Overlay-Berechtigung)")
+            return
+        }
+        DiagLog.log(TAG, "Cold-Restart nach Kill – hole Kiosk-UI zurück (${DiagLog.memorySnapshot(applicationContext)})")
+        runCatching {
+            startActivity(
+                Intent(this, MainActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+            )
+        }.onFailure { DiagLog.log(TAG, "UI-Neustart fehlgeschlagen: ${it.message}") }
     }
 
     override fun onBind(intent: Intent): IBinder? {

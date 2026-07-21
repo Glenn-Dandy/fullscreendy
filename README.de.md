@@ -213,6 +213,9 @@ Unter *Einstellungen → Anzeige*:
   Ausschalten kann das System beim Aufwecken kurz seine Aufwach-Animation zeigen;
   für **komplett flackerfreies** Aufwecken nur **Abdunkeln** nutzen (Ausschalten = 0).
   Dann bleibt das App-Fenster im Vordergrund und das Dashboard ist sofort da.
+- **Periodischer Reload** (Standard 6 h, 0 = aus): lädt das Dashboard per Timer neu,
+  damit der WebView-Speicher (DOM/JS/Bild-Cache) nicht über Tage anwächst – die
+  wichtigste Maßnahme gegen `LOW_MEMORY`-Kills im Dauerbetrieb.
 
 Unter *Einstellungen → System → Berechtigungen* (einmalig erteilen; erteilte
 Berechtigungen zeigen ein „✓"):
@@ -223,6 +226,10 @@ Berechtigungen zeigen ein „✓"):
   über den vollen Bereich (behebt „nur bis ~60 %").
 - **Dateizugriff erlauben** (All-Files-Access) → damit die App Tondateien aus
   `/sdcard/FullScreendy/` lesen kann.
+- **Akku-Optimierung deaktivieren** → damit Android die App im Hintergrund nicht killt.
+- **Über anderen Apps anzeigen** → lässt den Dienst das Dashboard automatisch wieder
+  in den Vordergrund holen, falls Android die App je wegen Speichermangel beendet
+  (siehe *Dauerbetrieb*).
 
 Der Geräteadmin-Button zeigt den aktuellen Status („Geräteadmin aktiv ✓“) und
 öffnet zur Not die Sicherheits-Einstellungen, falls der direkte Dialog auf dem
@@ -270,10 +277,24 @@ Für 24/7-Betrieb:
 2. Der Dienst nutzt den FGS-Typ **specialUse** (Android 14+) – der frühere Typ
    `dataSync` wurde von Android 15 nach ~6 h pro Tag hart beendet.
 
+**Gegen `LOW_MEMORY`-Kills** (App läuft morgens, ist abends weg): mehrere Maßnahmen
+halten den Speicherbedarf klein und holen die Anzeige zurück, falls Android die App
+doch beendet:
+- **`largeHeap`** für ein größeres Heap-Limit und **`onTrimMemory`** gibt den
+  WebView-Cache proaktiv frei, wenn das System Speicherdruck meldet.
+- **Periodischer Reload** (siehe *Anzeige*) setzt den über Tage wachsenden
+  WebView-Speicher zurück.
+- Die **Bewegungs-Kamera** analysiert mit kleiner Auflösung (320×240, kleinere Puffer).
+- **UI-Auto-Wiederherstellung:** nach einem Kill startet `START_STICKY` nur den
+  *Dienst* neu, nicht das Dashboard – deshalb holt der Dienst die Kiosk-Activity
+  selbst zurück (benötigt die Berechtigung **„Über anderen Apps anzeigen"**). Ohne sie
+  bliebe der Bildschirm schwarz („nicht aufweckbar"), obwohl MQTT kurz neu verbindet.
+
 Wenn die App dennoch „irgendwann weg" ist:
 - **MQTT-Reading `lastExit`** zeigt nach dem Neustart den Grund des letzten
-  Prozess-Endes (z. B. `CRASH`, `ANR`, `LOW_MEMORY`, `USER_REQUESTED`, `SYGNALED`).
-- **Log-Datei** mit Heartbeat (alle 30 min), Start/Stopp und Crash-Stacktraces:
+  Prozess-Endes (z. B. `CRASH`, `ANR`, `LOW_MEMORY`, `USER_REQUESTED`, `SIGNALED`).
+- **Log-Datei** mit Heartbeat (alle 30 min, inkl. Speicher: `heap=…/… frei=… lowMemory=…`),
+  Start/Stopp, Cold-Restart und Crash-Stacktraces:
   `Android/data/de.kewl.fullscreendy/files/logs/app.log` (per „Dateizugriff
   erlauben" + Dateimanager oder `adb pull` erreichbar).
 

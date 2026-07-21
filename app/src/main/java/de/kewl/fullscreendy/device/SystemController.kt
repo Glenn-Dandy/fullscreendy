@@ -129,6 +129,13 @@ object SystemController {
             )
         }
 
+    /** Darf die App über anderen Apps zeichnen? (nötig, um die UI nach Kill neu zu holen) */
+    fun canDrawOverlays(ctx: Context): Boolean =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) Settings.canDrawOverlays(ctx) else true
+
+    fun overlaySettingsIntent(ctx: Context): Intent =
+        Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${ctx.packageName}"))
+
     fun deviceAdminIntent(ctx: Context): Intent =
         Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
             .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, admin(ctx))

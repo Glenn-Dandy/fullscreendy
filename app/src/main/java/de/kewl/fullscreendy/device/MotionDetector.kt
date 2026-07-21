@@ -2,9 +2,12 @@ package de.kewl.fullscreendy.device
 
 import android.content.Context
 import android.util.Log
+import android.util.Size
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
@@ -60,8 +63,20 @@ class MotionDetector(
             val selector = if (hasFront) CameraSelector.DEFAULT_FRONT_CAMERA
             else CameraSelector.DEFAULT_BACK_CAMERA
 
+            // Kleine Analyse-Auflösung: reicht für Bewegungserkennung völlig aus,
+            // spart aber deutlich Speicher (kleinere Frame-Puffer) und CPU – wichtig
+            // im Dauerbetrieb gegen LOW_MEMORY.
+            val resolution = ResolutionSelector.Builder()
+                .setResolutionStrategy(
+                    ResolutionStrategy(
+                        Size(320, 240),
+                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER
+                    )
+                )
+                .build()
             val analysis = ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setResolutionSelector(resolution)
                 .build()
                 .also { it.setAnalyzer(analysisExecutor, ::analyze) }
 
