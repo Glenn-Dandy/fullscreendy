@@ -23,23 +23,33 @@ class Strings(private val lang: AppLang) {
     val statusConnected get() = t("MQTT connected", "MQTT verbunden")
     val statusDisconnected get() = t("MQTT disconnected", "MQTT getrennt")
     val navDashboard get() = t("Dashboard", "Dashboard")
+    val navDashboards get() = t("Dashboards", "Dashboards")
+    val navActions get() = t("Actions", "Aktionen")
+    val navApp get() = t("App", "App")
     val navReload get() = t("Reload", "Neu laden")
     val navClearCache get() = t("Clear cache", "Cache leeren")
     val navScreenOff get() = t("Screen off", "Bildschirm aus")
     val navSettings get() = t("Settings", "Einstellungen")
     val navAbout get() = t("About", "Über")
     val navExit get() = t("Exit app", "App beenden")
+    val defaultBadge get() = t("Default", "Standard")
 
     // Allgemein
     val save get() = t("Save", "Speichern")
     val back get() = t("Back", "Zurück")
     val cancel get() = t("Cancel", "Abbrechen")
     val ok get() = t("OK", "OK")
+    val remove get() = t("Remove", "Entfernen")
 
     // Einstellungen – Abschnitte
     val settings get() = t("Settings", "Einstellungen")
+    val secDashboards get() = t("Dashboards", "Dashboards")
+    val secDashboardsDesc get() = t(
+        "URLs, names, login, default dashboard",
+        "URLs, Namen, Login, Standard-Dashboard"
+    )
     val secConnection get() = t("Connection", "Verbindung")
-    val secConnectionDesc get() = t("Dashboard URL, MQTT broker, topics", "Dashboard-URL, MQTT-Broker, Topics")
+    val secConnectionDesc get() = t("MQTT broker, topics, device ID", "MQTT-Broker, Topics, Geräte-ID")
     val secDisplay get() = t("Display", "Anzeige")
     val secDisplayDesc get() = t("Zoom, font size, screen", "Zoom, Schriftgröße, Bildschirm")
     val secBehavior get() = t("Behavior", "Verhalten")
@@ -49,8 +59,25 @@ class Strings(private val lang: AppLang) {
     val secSystem get() = t("System", "System")
     val secSystemDesc get() = t("Language, autostart, PIN", "Sprache, Autostart, PIN")
 
-    // Verbindung
+    // Dashboards
+    val dashboardsHint get() = t(
+        "Up to 3 dashboards. Dashboard 1 always exists, more can be added with “+”.",
+        "Bis zu 3 Dashboards. Dashboard 1 gibt es immer, weitere über „+“ hinzufügen."
+    )
+    val addDashboard get() = t("Add", "Hinzufügen")
+    val dashboardName get() = t("Display name (menu)", "Anzeigename (Menü)")
     val dashboardUrl get() = t("Dashboard URL (http/https)", "Dashboard-URL (http/https)")
+    val setAsDefault get() = t("Use as default dashboard", "Als Standard-Dashboard verwenden")
+    val defaultDashboardHint get() = t(
+        "The default dashboard is always shown again when the screen wakes up.",
+        "Das Standard-Dashboard wird beim Aufwecken des Bildschirms immer wieder angezeigt."
+    )
+    val isDefaultDashboard get() = t("This is the default dashboard", "Dies ist das Standard-Dashboard")
+    val removeDashboard get() = t("Remove this dashboard", "Dieses Dashboard entfernen")
+    val removeDashboardConfirm get() = t(
+        "Remove this dashboard including URL and login?",
+        "Dieses Dashboard samt URL und Login entfernen?"
+    )
     val dashboardLogin get() = t("Dashboard login (optional)", "Dashboard-Login (optional)")
     val dashboardLoginHint get() = t(
         "For a password-protected dashboard (e.g. FHEM basicAuth). Leave empty for none. Cleaner than user:pass in the URL.",
@@ -63,6 +90,8 @@ class Strings(private val lang: AppLang) {
         "Enable for a local HTTPS dashboard with a self-signed/invalid certificate (e.g. FHEM). Insecure over untrusted networks – only use on your own LAN.",
         "Für ein lokales HTTPS-Dashboard mit selbst-signiertem/ungültigem Zertifikat aktivieren (z. B. FHEM). In fremden Netzen unsicher – nur im eigenen LAN nutzen."
     )
+
+    // Verbindung (MQTT)
     val mqttBroker get() = t("MQTT broker", "MQTT-Broker")
     val host get() = t("Host / IP", "Host / IP")
     val port get() = t("Port", "Port")
@@ -111,6 +140,10 @@ class Strings(private val lang: AppLang) {
         "Erst speichern, dann vor der Kamera winken / Geräusch machen – der Punkt leuchtet und das Gerät vibriert bei Erkennung."
     )
     val pullToRefresh get() = t("Pull down to reload", "Zum Aktualisieren nach unten ziehen")
+    val pullToRefreshHint get() = t(
+        "Only a downward pull that starts at the very top of the page reloads. Scrolling up simply stops at the top.",
+        "Nur ein Zug nach unten, der am Seitenanfang beginnt, lädt neu. Hochscrollen stoppt einfach oben."
+    )
     val ttsEnabled get() = t("Text-to-speech enabled", "Text-to-Speech aktiv")
     val mediaEnabled get() = t("Sound playback enabled", "Tonwiedergabe aktiv")
 
@@ -127,6 +160,11 @@ class Strings(private val lang: AppLang) {
     val languageEnglish get() = t("English", "Englisch")
     val languageGerman get() = t("German", "Deutsch")
     val startOnBoot get() = t("Start on boot", "Beim Booten starten")
+    val pinProtection get() = t("PIN protection for settings", "PIN-Schutz für Einstellungen")
+    val pinProtectionHint get() = t(
+        "Off: settings and the menu open without a PIN.",
+        "Aus: Einstellungen und Menü öffnen sich ohne PIN."
+    )
     val adminPin get() = t("Admin PIN (access to settings)", "Admin-PIN (Zugang zu Einstellungen)")
     val permissionsTitle get() = t("Permissions", "Berechtigungen")
     val enableDeviceAdmin get() = t("Enable device admin (screen lock)", "Geräteadmin aktivieren (Sperren)")
@@ -141,19 +179,27 @@ class Strings(private val lang: AppLang) {
     val micActive get() = t("Microphone allowed ✓", "Mikrofon erlaubt ✓")
     val allowBatteryOpt get() = t("Disable battery optimization (24/7)", "Akku-Optimierung deaktivieren (24/7)")
     val batteryOptActive get() = t("Battery optimization disabled ✓", "Akku-Optimierung deaktiviert ✓")
-    val allowOverlay get() = t("Allow display over other apps (auto-recover)", "Über anderen Apps anzeigen (Auto-Wiederherstellung)")
+    val allowOverlay get() = t("Display over other apps (auto-recover)", "Über anderen Apps anzeigen (Auto-Wiederherstellung)")
     val overlayActive get() = t("Display over other apps active ✓", "Über anderen Apps aktiv ✓")
     val openFailed get() = t("Could not open system settings", "Systemeinstellungen konnten nicht geöffnet werden")
 
     // Über
     val about get() = t("About", "Über")
+    val aboutDevice get() = t("Device", "Gerät")
+    val aboutUpdate get() = t("Update", "Update")
+    val aboutProject get() = t("Project", "Projekt")
     val githubRepo get() = t("Project on GitHub ↗", "Projekt auf GitHub ↗")
+    val starGithub get() = t("Star on GitHub", "Stern auf GitHub geben")
+    val viewSource get() = t("View source code", "Quellcode ansehen")
+    val supportProject get() = t("Support the project", "Projekt unterstützen")
     val updateChecking get() = t("Checking for updates…", "Suche nach Updates…")
     val updateUpToDate get() = t("You have the latest version", "Du hast die neueste Version")
     val updateAvailable get() = t("Update available:", "Update verfügbar:")
     val updateInstall get() = t("Download & install", "Herunterladen & installieren")
     val updateDownloading get() = t("Downloading…", "Wird heruntergeladen…")
+    val updateCheckAgain get() = t("Check again", "Erneut prüfen")
     val updateError get() = t("Update check failed", "Update-Prüfung fehlgeschlagen")
+    val updateDownloadFailed get() = t("Download failed", "Download fehlgeschlagen")
     val updateAllowInstall get() = t(
         "Please allow installing unknown apps, then tap again.",
         "Bitte Installation unbekannter Apps erlauben, dann erneut tippen."
@@ -161,8 +207,8 @@ class Strings(private val lang: AppLang) {
     val appVersionLabel get() = t("App version", "App-Version")
     val androidVersionLabel get() = t("Android version", "Android-Version")
     val ipAddressLabel get() = t("IP address", "IP-Adresse")
-    val urlLabel get() = t("Dashboard URL", "Dashboard-URL")
     val deviceIdLabel get() = t("Device ID", "Geräte-ID")
+    val licenseLine get() = t("MIT license", "MIT-Lizenz")
 
     // PIN
     val pinTitle get() = t("Admin PIN", "Admin-PIN")

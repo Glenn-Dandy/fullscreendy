@@ -8,6 +8,9 @@ sealed interface KioskCommand {
     data class LoadUrl(val url: String) : KioskCommand
     data object Reload : KioskCommand
 
+    /** Auf das Dashboard mit diesem Index (0-basiert) umschalten. */
+    data class SelectDashboard(val index: Int) : KioskCommand
+
     /** Bildschirm "an" (Overlay weg, Helligkeit zurück) oder "aus" (schwarzes Overlay). */
     data class Screen(val on: Boolean) : KioskCommand
 

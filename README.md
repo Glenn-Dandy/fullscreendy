@@ -12,8 +12,11 @@ an FHEM dashboard and integrates the tablet as an FHEM device over **MQTT**.
 - 🔈 **Sounds** – play stored sound files in the background
 - 🖥️ **Screen control** – on/off (overlay) and brightness
 - 🚶 **Presence / motion** – camera motion detection wakes the display (no image leaves the device)
-- 🌐 **Remote control** – switch URL, reload, clear cache – all via MQTT
-- 🗂️ **Menu** – swipe in from the left: status, actions, settings (PIN), about, exit
+- 🗂️ **Up to 3 dashboards** – named tabs, switchable from the menu; the **default
+  dashboard** is always shown again when the screen wakes up
+- 🌐 **Remote control** – switch dashboard or URL, reload, clear cache – all via MQTT
+- ☰ **Menu** – swipe in from the left: MQTT status, dashboard list, actions,
+  settings (optional PIN), about, exit
 - 🌍 **Bilingual** – English (default) / German
 
 Everything runs in a persistent foreground service with auto-reconnect to the MQTT broker.
@@ -43,21 +46,26 @@ Prebuilt signed APKs are on the [Releases page](https://github.com/Glenn-Dandy/f
 
 1. Launch the app. As no URL is configured yet, **Settings** open right away.
 2. Enter:
-   - *Connection*: **dashboard URL** (e.g. `http://192.168.1.10:8083/fhem/floorplan/Home`),
-     an optional **dashboard login** (user/password for a password-protected dashboard,
-     e.g. FHEM `basicAuth` – sent as HTTP Basic Auth, cleaner than `user:pass@` in the URL),
-     **allow self-signed certificates** (enable if the dashboard uses HTTPS with a
-     self-signed/invalid certificate, e.g. local FHEM – off by default; only use on your
-     own LAN), **MQTT host/port** (+ optional user/password/TLS), **base topic** (default
-     `fhem/tablet`) and **device ID** (default `tablet1`)
-   - *System*: language and admin PIN (default `0000`)
-3. Tap **Save** at the top, then go back → the dashboard is shown.
+   - *Dashboards*: **Dashboard 1** always exists; further dashboards (max 3) are added
+     with the **“+” tab**. Per dashboard: **display name** (shown in the menu),
+     **URL** (e.g. `http://192.168.1.10:8083/fhem/floorplan/Home`), an optional
+     **login** (user/password for a password-protected dashboard, e.g. FHEM
+     `basicAuth` – sent as HTTP Basic Auth, cleaner than `user:pass@` in the URL) and
+     **allow self-signed certificates** (enable if that dashboard uses HTTPS with a
+     self-signed/invalid certificate, e.g. local FHEM – off by default; only use on
+     your own LAN). One dashboard is the **default dashboard** (star): it is shown on
+     start and again every time the screen wakes up.
+   - *Connection*: **MQTT host/port** (+ optional user/password/TLS), **base topic**
+     (default `fhem/tablet`) and **device ID** (default `tablet1`)
+   - *System*: language, **PIN protection** (can be switched off) and admin PIN
+     (default `0000`)
+3. Settings save themselves ~1 s after the last change; go back → the dashboard is shown.
 
 Allow the camera and notification permissions on first launch.
 
 **Menu / back to settings:** swipe in from the **left edge** → menu with MQTT status,
-*Reload*, *Clear cache*, *Screen off*, *Settings* (PIN), *About* (with GitHub link),
-*Exit app*.
+the **dashboard list** (tap to switch), *Reload*, *Clear cache*, *Screen off*,
+*Settings* (PIN if enabled), *About* (version, update, GitHub), *Exit app*.
 
 ### Autostart (optional)
 The app is deliberately **not a launcher/home replacement** – the tablet stays
@@ -87,6 +95,8 @@ Base: `<base-topic>/<device-id>`, e.g. `fhem/tablet/tablet1`.
 | `…/brightness` | `0`–`100` or `auto` |
 | `…/volume` | `0`–`100` (media volume) |
 | `…/url` | currently loaded URL |
+| `…/dashboard` | number of the visible dashboard (`1`–`3`) |
+| `…/dashboardName` | its display name |
 | `…/ip` | IPv4 address |
 | `…/appVersion` | app version, e.g. `0.2.0` |
 | `…/androidVersion` | e.g. `13 (SDK 33)` |
@@ -99,6 +109,7 @@ Base: `<base-topic>/<device-id>`, e.g. `fhem/tablet/tablet1`.
 | `cmd/mediaplay` | `folder/sound.mp3` | plays a stored sound file (aliases: `media`, `play`) |
 | `cmd/mediastop` | (any) | stops playback |
 | `cmd/url` | URL | loads another page and reports it as the `url` reading |
+| `cmd/dashboard` | `1`–`3` or name | switches to that dashboard (alias: `db`) |
 | `cmd/reload` | (any) | reloads the page |
 | `cmd/clearcache` | (any) | clears the browser cache |
 | `cmd/screen` | `on` / `off` | physically wakes the display (on) or black overlay (off) |
@@ -191,6 +202,9 @@ set MQTT2_Broker publish fhem/tablet/tablet1/cmd/mediaplay doorbell.mp3
 ## Device settings & permissions
 
 Under *Settings → Behavior*:
+- **Pull down to reload**: only a downward pull that *starts* at the very top of the
+  page reloads (with the familiar spinner). Scrolling up simply stops at the top of
+  the page – no accidental reload while scrolling.
 - **Motion sensitivity** (slider) for the camera detection.
 - **Wake on sound (microphone)** with **sound sensitivity** – loud ambient noise
   wakes the display (loudness only, no recording).
@@ -217,6 +231,10 @@ Under *Settings → Display*:
 - **Periodic reload** (default 6 h, 0 = off): reloads the dashboard on a timer so the
   WebView’s memory (DOM/JS/image cache) does not keep growing over days – the main
   defense against Android killing the app for `LOW_MEMORY` in long-term operation.
+
+Under *Settings → System*:
+- **PIN protection for settings** (on by default): when switched off, *Settings* opens
+  from the menu without a PIN – handy on a tablet nobody else touches.
 
 Under *Settings → System → Permissions* (grant once; granted permissions show a “✓”):
 - **Allow camera** → for motion detection (front camera).
@@ -304,7 +322,10 @@ motion detection is off.
 ## Updates
 The app checks GitHub Releases when you open *About*: stable builds look for the latest
 stable release, dev builds also consider pre-releases. If a newer version exists you can
-**download and install** it right from the About screen (allow “install unknown apps” once).
+**download and install** it right from the About screen – with a progress bar in percent
+(allow “install unknown apps” once). *About* also shows app/Android version, IP address
+and device ID, and links to **star the project on GitHub**, the **source code** and
+**support the project**.
 
 ---
 

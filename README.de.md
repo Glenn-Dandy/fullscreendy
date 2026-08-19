@@ -12,8 +12,11 @@ FHEM-Dashboard anzeigt und das Tablet über **MQTT** als FHEM-Gerät anbindet.
 - 🔈 **Töne** – gespeicherte Sounddateien im Hintergrund abspielen
 - 🖥️ **Bildschirm-Steuerung** – an/aus (Overlay) und Helligkeit
 - 🚶 **Präsenz / Bewegung** – Kamera-Bewegungserkennung, weckt das Display (kein Bild verlässt das Gerät)
-- 🌐 **Fernsteuerung** – URL wechseln, neu laden, Cache leeren – alles per MQTT
-- 🗂️ **Menü** – von links einwischen: Status, Aktionen, Einstellungen (PIN), Über, App beenden
+- 🗂️ **Bis zu 3 Dashboards** – benannte Reiter, im Menü umschaltbar; das
+  **Standard-Dashboard** wird beim Aufwecken immer wieder angezeigt
+- 🌐 **Fernsteuerung** – Dashboard oder URL wechseln, neu laden, Cache leeren – alles per MQTT
+- ☰ **Menü** – von links einwischen: MQTT-Status, Dashboard-Liste, Aktionen,
+  Einstellungen (PIN optional), Über, App beenden
 - 🌍 **Zweisprachig** – Englisch (Standard) / Deutsch
 
 Alles läuft in einem dauerhaften Foreground-Service mit Auto-Reconnect zum MQTT-Broker.
@@ -44,21 +47,28 @@ Fertige signierte APKs gibt es auf der [Releases-Seite](https://github.com/Glenn
 1. App starten. Da noch keine URL konfiguriert ist, öffnen sich direkt die
    **Einstellungen**.
 2. Eintragen:
-   - *Verbindung*: **Dashboard-URL** (z. B. `http://192.168.1.10:8083/fhem/floorplan/Wohnung`),
-     optional ein **Dashboard-Login** (Benutzer/Passwort für ein passwortgeschütztes
-     Dashboard, z. B. FHEM `basicAuth` – als HTTP Basic Auth gesendet, sauberer als
-     `user:pass@` in der URL), **selbst-signierte Zertifikate erlauben** (aktivieren, wenn
-     das Dashboard HTTPS mit selbst-signiertem/ungültigem Zertifikat nutzt, z. B. lokales
-     FHEM – standardmäßig aus; nur im eigenen LAN nutzen), **MQTT-Host/Port** (+ ggf. Benutzer/Passwort/TLS),
-     **Basis-Topic** (Standard `fhem/tablet`) und **Geräte-ID** (Standard `tablet1`)
-   - *System*: Sprache und Admin-PIN (Standard `0000`)
-3. Oben **Speichern**, dann zurück → das Dashboard wird angezeigt.
+   - *Dashboards*: **Dashboard 1** gibt es immer; weitere (max. 3) über den Reiter
+     **„+ Hinzufügen“**. Je Dashboard: **Anzeigename** (erscheint im Menü), **URL**
+     (z. B. `http://192.168.1.10:8083/fhem/floorplan/Wohnung`), optional ein **Login**
+     (Benutzer/Passwort für ein passwortgeschütztes Dashboard, z. B. FHEM `basicAuth` –
+     als HTTP Basic Auth gesendet, sauberer als `user:pass@` in der URL) und
+     **selbst-signierte Zertifikate erlauben** (aktivieren, wenn dieses Dashboard HTTPS
+     mit selbst-signiertem/ungültigem Zertifikat nutzt, z. B. lokales FHEM –
+     standardmäßig aus; nur im eigenen LAN nutzen). Ein Dashboard ist das
+     **Standard-Dashboard** (Stern): Es wird beim Start und nach jedem Aufwecken
+     des Bildschirms angezeigt.
+   - *Verbindung*: **MQTT-Host/Port** (+ ggf. Benutzer/Passwort/TLS), **Basis-Topic**
+     (Standard `fhem/tablet`) und **Geräte-ID** (Standard `tablet1`)
+   - *System*: Sprache, **PIN-Schutz** (abschaltbar) und Admin-PIN (Standard `0000`)
+3. Die Einstellungen speichern sich ~1 s nach der letzten Änderung selbst; zurück →
+   das Dashboard wird angezeigt.
 
 Kamera- und Benachrichtigungs-Berechtigung beim ersten Start erlauben.
 
 **Menü / zurück in die Einstellungen:** vom **linken Bildschirmrand nach rechts
-wischen** → Menü mit MQTT-Status, *Neu laden*, *Cache leeren*, *Bildschirm aus*,
-*Einstellungen* (PIN), *Über* (mit GitHub-Link), *App beenden*.
+wischen** → Menü mit MQTT-Status, der **Dashboard-Liste** (zum Umschalten antippen),
+*Neu laden*, *Cache leeren*, *Bildschirm aus*, *Einstellungen* (PIN, falls aktiv),
+*Über* (Version, Update, GitHub), *App beenden*.
 
 ### Autostart (optional)
 Die App ist bewusst **kein Launcher/Home-Ersatz** – das Tablet bleibt normal
@@ -88,6 +98,8 @@ Basis: `<Basis-Topic>/<Geräte-ID>`, im Beispiel `fhem/tablet/tablet1`.
 | `…/brightness` | `0`–`100` oder `auto` |
 | `…/volume` | `0`–`100` (Medienlautstärke) |
 | `…/url` | aktuell geladene URL |
+| `…/dashboard` | Nummer des sichtbaren Dashboards (`1`–`3`) |
+| `…/dashboardName` | dessen Anzeigename |
 | `…/ip` | IPv4-Adresse |
 | `…/appVersion` | App-Version, z. B. `0.2.0` |
 | `…/androidVersion` | z. B. `13 (SDK 33)` |
@@ -100,6 +112,7 @@ Basis: `<Basis-Topic>/<Geräte-ID>`, im Beispiel `fhem/tablet/tablet1`.
 | `cmd/mediaplay` | `ordner/sound.mp3` | spielt gespeicherte Tondatei ab (Aliase: `media`, `play`) |
 | `cmd/mediastop` | (egal) | stoppt die Wiedergabe |
 | `cmd/url` | URL | lädt eine andere Seite und meldet sie als `url`-Reading |
+| `cmd/dashboard` | `1`–`3` oder Name | schaltet auf dieses Dashboard um (Alias: `db`) |
 | `cmd/reload` | (egal) | lädt die Seite neu |
 | `cmd/clearcache` | (egal) | leert den Browser-Cache |
 | `cmd/screen` | `on` / `off` | weckt das Display physisch (an) bzw. schwarzes Overlay (aus) |
@@ -192,6 +205,9 @@ set MQTT2_Broker publish fhem/tablet/tablet1/cmd/mediaplay tuerklingel.mp3
 ## Geräte-Einstellungen & Berechtigungen
 
 Unter *Einstellungen → Verhalten*:
+- **Zum Aktualisieren nach unten ziehen**: Es lädt nur ein Zug nach unten neu, der am
+  Seitenanfang *beginnt* (mit dem bekannten Lade-Kreis). Hochscrollen stoppt einfach
+  oben auf der Seite – kein versehentlicher Reload beim normalen Scrollen.
 - **Bewegungs-Empfindlichkeit** (Schieberegler) für die Kamera-Erkennung.
 - **Wecken bei Ton (Mikrofon)** mit **Ton-Empfindlichkeit** – lauter Umgebungsschall
   weckt das Display (nur Lautstärke, keine Aufnahme).
@@ -221,6 +237,11 @@ Unter *Einstellungen → Anzeige*:
 - **Periodischer Reload** (Standard 6 h, 0 = aus): lädt das Dashboard per Timer neu,
   damit der WebView-Speicher (DOM/JS/Bild-Cache) nicht über Tage anwächst – die
   wichtigste Maßnahme gegen `LOW_MEMORY`-Kills im Dauerbetrieb.
+
+Unter *Einstellungen → System*:
+- **PIN-Schutz für Einstellungen** (Standard an): Ausgeschaltet öffnen sich die
+  *Einstellungen* aus dem Menü ohne PIN-Abfrage – praktisch auf einem Tablet, an das
+  sonst niemand herankommt.
 
 Unter *Einstellungen → System → Berechtigungen* (einmalig erteilen; erteilte
 Berechtigungen zeigen ein „✓"):
@@ -312,8 +333,10 @@ Apps nicht ausblenden; er verschwindet nur, wenn die Bewegungserkennung aus ist.
 ## Updates
 Die App prüft beim Öffnen von *Über* die GitHub-Releases: stabile Builds suchen das
 neueste stabile Release, Dev-Builds auch Pre-Releases. Gibt es eine neuere Version,
-kannst du sie direkt aus der „Über"-Seite **herunterladen und installieren** (einmalig
-„Unbekannte Apps installieren" erlauben).
+kannst du sie direkt aus der „Über"-Seite **herunterladen und installieren** – mit
+Fortschrittsanzeige in Prozent (einmalig „Unbekannte Apps installieren" erlauben).
+Die „Über"-Seite zeigt außerdem App-/Android-Version, IP-Adresse und Geräte-ID und
+verlinkt **Stern auf GitHub geben**, den **Quellcode** und **Projekt unterstützen**.
 
 ---
 

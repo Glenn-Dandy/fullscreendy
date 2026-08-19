@@ -56,6 +56,7 @@ class KioskService : LifecycleService() {
     private var lastBattery: BatteryState? = null
     private var screenOn: Boolean = true
     private var currentUrl: String = ""
+    private var activeDashboard: Int = 0
     private var brightnessPercent: Int = -1 // -1 = auto
 
     // Verhindert unnötige Neustarts von MQTT/Detektoren bei irrelevanten Änderungen.
@@ -76,6 +77,15 @@ class KioskService : LifecycleService() {
             repo.settings.distinctUntilChanged().collect { s ->
                 settings = s
                 applySettings(s)
+            }
+        }
+        // Die UI meldet, welches Dashboard gerade sichtbar ist (Menü, MQTT, Aufwecken).
+        lifecycleScope.launch {
+            KioskStatus.activeDashboard.collect { index ->
+                activeDashboard = index
+                currentUrl = settings.dashboardAt(index).url
+                publishDashboard()
+                publishUrl()
             }
         }
         // Heartbeat: alle 30 min eine Log-Zeile inkl. Speicherlage → Todeszeitpunkt UND
@@ -133,8 +143,9 @@ class KioskService : LifecycleService() {
     // ---- Konfiguration anwenden -------------------------------------------------
 
     private fun applySettings(s: Settings) {
-        if (currentUrl != s.dashboardUrl) {
-            currentUrl = s.dashboardUrl
+        val url = s.dashboardAt(activeDashboard).url
+        if (currentUrl != url) {
+            currentUrl = url
             publishUrl()
         }
 
@@ -237,6 +248,7 @@ class KioskService : LifecycleService() {
         lastBattery?.let { publishBattery(it) }
         publishScreen(screenOn)
         publishUrl()
+        publishDashboard()
         publishBrightness()
         publishVolume()
     }
@@ -247,6 +259,14 @@ class KioskService : LifecycleService() {
 
     private fun publishUrl() {
         mqtt?.publish("${settings.deviceTopic}/url", currentUrl, retained = true)
+    }
+
+    /** Nummer (1-basiert) und Name des gerade angezeigten Dashboards. */
+    private fun publishDashboard() {
+        val dt = settings.deviceTopic
+        val index = activeDashboard
+        mqtt?.publish("$dt/dashboard", (index + 1).toString(), retained = true)
+        mqtt?.publish("$dt/dashboardName", settings.dashboardAt(index).displayName(index), retained = true)
     }
 
     private fun publishBrightness() {
@@ -309,6 +329,21 @@ class KioskService : LifecycleService() {
         runCatching { wl.acquire(3_000L) }
     }
 
+    /** Dashboard per Nummer (1..3) oder Name umschalten. */
+    private fun selectDashboard(payload: String) {
+        val wanted = payload.trim()
+        val index = wanted.toIntOrNull()?.minus(1)
+            ?: settings.dashboards.withIndex().firstOrNull { (i, d) ->
+                d.name.equals(wanted, ignoreCase = true) || d.displayName(i).equals(wanted, ignoreCase = true)
+            }?.index
+        if (index == null || index !in settings.dashboards.indices) {
+            Log.w(TAG, "Unbekanntes Dashboard: $payload")
+            return
+        }
+        // Die UI schaltet um und meldet es über KioskStatus zurück (→ Readings).
+        KioskBus.send(KioskCommand.SelectDashboard(index))
+    }
+
     private fun publishScreen(on: Boolean) {
         val dt = settings.deviceTopic
         mqtt?.publish("$dt/screen", if (on) "on" else "off", retained = true)
@@ -331,6 +366,7 @@ class KioskService : LifecycleService() {
                 KioskBus.send(KioskCommand.LoadUrl(currentUrl))
                 publishUrl()
             }
+            "dashboard", "db" -> selectDashboard(payload)
             "reload", "refresh" -> KioskBus.send(KioskCommand.Reload)
             "screen" -> setScreen(isOn(payload))
             "screensaver" -> setScreen(!isOn(payload)) // screensaver an == Bildschirm aus

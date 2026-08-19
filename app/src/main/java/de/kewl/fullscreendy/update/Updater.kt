@@ -20,8 +20,11 @@ object Updater {
     fun unknownSourcesIntent(ctx: Context): Intent =
         Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:${ctx.packageName}"))
 
-    /** Lädt die APK nach externalFilesDir/update.apk. Nur aus IO-Kontext aufrufen. */
-    fun download(ctx: Context, url: String): File? {
+    /**
+     * Lädt die APK nach externalFilesDir/update.apk und meldet den Fortschritt in
+     * Prozent (−1, wenn der Server keine Größe mitschickt). Nur aus IO-Kontext aufrufen.
+     */
+    fun download(ctx: Context, url: String, onProgress: (Int) -> Unit = {}): File? {
         return runCatching {
             val dir = ctx.getExternalFilesDir(null) ?: ctx.cacheDir
             val out = File(dir, "update.apk")
@@ -32,7 +35,30 @@ object Updater {
                 setRequestProperty("User-Agent", "FullScreendy")
             }
             try {
-                conn.inputStream.use { input -> out.outputStream().use { input.copyTo(it) } }
+                val total = conn.contentLength.toLong()
+                var read = 0L
+                var lastPercent = -1
+                conn.inputStream.use { input ->
+                    out.outputStream().use { output ->
+                        val buffer = ByteArray(64 * 1024)
+                        while (true) {
+                            val n = input.read(buffer)
+                            if (n < 0) break
+                            output.write(buffer, 0, n)
+                            read += n
+                            if (total > 0) {
+                                val percent = (read * 100 / total).toInt()
+                                if (percent != lastPercent) {
+                                    lastPercent = percent
+                                    onProgress(percent)
+                                }
+                            } else if (lastPercent != -1) {
+                                lastPercent = -1
+                                onProgress(-1)
+                            }
+                        }
+                    }
+                }
             } finally {
                 conn.disconnect()
             }

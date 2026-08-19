@@ -8,6 +8,13 @@ import java.net.URL
 
 data class UpdateInfo(val version: String, val apkUrl: String)
 
+/** Feste Projekt-Adressen (GitHub, Unterstützen). */
+object Repo {
+    const val OWNER = "Glenn-Dandy"
+    const val URL = "https://github.com/Glenn-Dandy/fullscreendy"
+    const val SUPPORT_URL = "https://paypal.me/GlennDandy"
+}
+
 /**
  * Prüft die GitHub-Releases auf eine neuere Version. Für Dev-Builds werden auch
  * Pre-Releases berücksichtigt, für stabile Builds nur das „latest"-Release.

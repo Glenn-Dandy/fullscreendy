@@ -1,15 +1,29 @@
 package de.kewl.fullscreendy.data
 
 /**
+ * Ein Dashboard (ein Reiter in den Einstellungen). Jedes Dashboard bringt seinen
+ * eigenen Login und seine eigene Zertifikats-Einstellung mit, damit auch mehrere
+ * Server gemischt werden können (z. B. FHEM und Grafana).
+ */
+data class DashboardConfig(
+    val name: String = "",
+    val url: String = "",
+    val user: String = "",
+    val pass: String = "",
+    val allowInvalidCerts: Boolean = false,
+) {
+    /** Anzeigename; ohne eigenen Namen "Dashboard 1", "Dashboard 2", … */
+    fun displayName(index: Int): String = name.trim().ifBlank { "Dashboard ${index + 1}" }
+}
+
+/**
  * Alle vom Nutzer konfigurierbaren Einstellungen der Kiosk-App.
  */
 data class Settings(
-    val dashboardUrl: String = "",
-    /** Optionaler HTTP-Basic-Auth-Login fürs Dashboard (z. B. FHEM basicAuth); leer = keiner. */
-    val dashboardUser: String = "",
-    val dashboardPass: String = "",
-    /** HTTPS mit selbst-signiertem/ungültigem Zertifikat zulassen (unsicher, daher Standard aus). */
-    val allowInvalidCerts: Boolean = false,
+    /** Mindestens eines, höchstens [MAX_DASHBOARDS]; Index 0 ist "Dashboard 1". */
+    val dashboards: List<DashboardConfig> = listOf(DashboardConfig()),
+    /** Index des Standard-Dashboards – wird beim Aufwecken immer angezeigt. */
+    val defaultDashboard: Int = 0,
     val mqttHost: String = "",
     val mqttPort: Int = 1883,
     val mqttTls: Boolean = false,
@@ -37,12 +51,33 @@ data class Settings(
     val startOnBoot: Boolean = true,
     /** UI-Sprache: "en" (Standard) oder "de". */
     val language: String = "en",
+    /** PIN-Abfrage vor den Einstellungen; aus = Einstellungen ohne PIN erreichbar. */
+    val pinEnabled: Boolean = true,
     val adminPin: String = "0000",
 ) {
     val isConfigured: Boolean
-        get() = dashboardUrl.isNotBlank()
+        get() = dashboards.any { it.url.isNotBlank() }
+
+    /** Index des Standard-Dashboards, auf den gültigen Bereich begrenzt. */
+    val defaultIndex: Int
+        get() = defaultDashboard.coerceIn(0, dashboards.lastIndex.coerceAtLeast(0))
+
+    /** Dashboard an [index]; außerhalb des Bereichs das Standard-Dashboard. */
+    fun dashboardAt(index: Int): DashboardConfig =
+        dashboards.getOrNull(index) ?: dashboards.getOrNull(defaultIndex) ?: DashboardConfig()
+
+    val defaultDashboardConfig: DashboardConfig
+        get() = dashboardAt(defaultIndex)
+
+    /** Im Menü sichtbare Dashboards (Index → Konfiguration); leere URLs bleiben außen vor. */
+    fun usableDashboards(): List<IndexedValue<DashboardConfig>> =
+        dashboards.withIndex().filter { it.value.url.isNotBlank() }
 
     /** Basis-Topic für dieses Gerät, z. B. "fhem/tablet/tablet1". */
     val deviceTopic: String
         get() = "${baseTopic.trimEnd('/')}/$deviceId"
+
+    companion object {
+        const val MAX_DASHBOARDS = 3
+    }
 }

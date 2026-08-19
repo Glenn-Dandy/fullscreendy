@@ -22,16 +22,28 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
@@ -48,11 +60,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
@@ -70,9 +82,12 @@ import de.kewl.fullscreendy.kiosk.KioskCommand
 import de.kewl.fullscreendy.kiosk.KioskStatus
 import de.kewl.fullscreendy.service.KioskService
 import de.kewl.fullscreendy.ui.AboutScreen
+import de.kewl.fullscreendy.ui.DashboardAuth
 import de.kewl.fullscreendy.ui.KioskWebView
 import de.kewl.fullscreendy.ui.PinDialog
+import de.kewl.fullscreendy.ui.SectionLabel
 import de.kewl.fullscreendy.ui.SettingsScreen
+import de.kewl.fullscreendy.ui.StatusDot
 import de.kewl.fullscreendy.ui.rememberWebController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -180,7 +195,6 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun KioskContent(repo: SettingsRepository, settings: Settings) {
-        val s = LocalStrings.current
         val scope = rememberCoroutineScope()
         val webController = rememberWebController()
         val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -190,10 +204,26 @@ class MainActivity : ComponentActivity() {
         var overlayVisible by remember { mutableStateOf(false) }
         var brightness by remember { mutableStateOf(-1f) }
         var activityNonce by remember { mutableStateOf(0) }
+        // Gerade angezeigtes Dashboard; wird beim Aufwecken aufs Standard zurückgesetzt.
+        var dashboardIndex by remember { mutableStateOf(settings.defaultIndex) }
+        // Per MQTT (cmd/url) gesetzte Ad-hoc-Adresse; überlagert das Dashboard, bis
+        // wieder eines gewählt wird oder der Bildschirm aufwacht.
+        var overrideUrl by remember { mutableStateOf<String?>(null) }
+
+        val activeIndex = dashboardIndex.coerceIn(0, settings.dashboards.lastIndex.coerceAtLeast(0))
+        val dashboard = settings.dashboardAt(activeIndex)
+
+        /** Dashboard wechseln und eine eventuelle Ad-hoc-URL verwerfen. */
+        fun showDashboard(index: Int) {
+            overrideUrl = null
+            dashboardIndex = index
+        }
 
         LaunchedEffect(settings.isConfigured) {
             if (!settings.isConfigured) page = AppPage.Settings
         }
+        // Der Dienst meldet das aktive Dashboard per MQTT.
+        LaunchedEffect(activeIndex) { KioskStatus.setActiveDashboard(activeIndex) }
         // Bildschirm anlassen, wenn Wecken-auf-Bewegung/Ton oder Auto-Abdunkeln aktiv ist –
         // nur so laufen Kamera/Mikrofon zuverlässig weiter (kein OS-Screen-Off, kein
         // Wallpaper-Blitzen). "Aus" wird über das schwarze Overlay realisiert.
@@ -204,6 +234,11 @@ class MainActivity : ComponentActivity() {
         LaunchedEffect(keepScreenOn) { setKeepScreenOn(keepScreenOn) }
         LaunchedEffect(overlayVisible, brightness) {
             setScreenBrightness(if (overlayVisible) 0f else brightness)
+        }
+        // Beim Aufwecken (Overlay verschwindet) immer zurück aufs Standard-Dashboard –
+        // egal, was zuletzt manuell im Menü gewählt wurde.
+        LaunchedEffect(overlayVisible) {
+            if (!overlayVisible) showDashboard(settings.defaultIndex)
         }
         // Nach Inaktivität abdunkeln und (optional) ausschalten; jede Berührung/Bewegung
         // setzt den Timer zurück (activityNonce ändert sich → Effekt startet neu).
@@ -222,7 +257,8 @@ class MainActivity : ComponentActivity() {
         LaunchedEffect(Unit) {
             KioskBus.commands.collect { cmd ->
                 when (cmd) {
-                    is KioskCommand.LoadUrl -> webController.load(cmd.url)
+                    is KioskCommand.LoadUrl -> overrideUrl = cmd.url
+                    is KioskCommand.SelectDashboard -> showDashboard(cmd.index)
                     KioskCommand.Reload -> webController.reload()
                     KioskCommand.ClearCache -> webController.clearCache()
                     is KioskCommand.Screen -> {
@@ -278,11 +314,16 @@ class MainActivity : ComponentActivity() {
             gesturesEnabled = drawerState.isOpen,
             drawerContent = {
                 AppDrawer(
-                    onDashboard = { closeDrawer(); page = AppPage.Dashboard },
+                    settings = settings,
+                    activeDashboard = activeIndex,
+                    onDashboard = { index -> closeDrawer(); page = AppPage.Dashboard; showDashboard(index) },
                     onReload = { closeDrawer(); webController.reload() },
                     onClearCache = { closeDrawer(); webController.clearCache() },
                     onScreenOff = { closeDrawer(); overlayVisible = true },
-                    onSettings = { closeDrawer(); showPin = true },
+                    onSettings = {
+                        closeDrawer()
+                        if (settings.pinEnabled) showPin = true else page = AppPage.Settings
+                    },
                     onAbout = { closeDrawer(); page = AppPage.About },
                     onExit = {
                         stopService(Intent(this@MainActivity, KioskService::class.java))
@@ -310,24 +351,20 @@ class MainActivity : ComponentActivity() {
                         }
                 ) {
                     // Dashboard-WebView ist immer vorhanden; Unterseiten legen sich darüber.
-                    // Login-Daten fließen in den key ein, damit der Auth-Handler bei
-                    // Änderung neu greift (er fängt die Werte beim Erstellen ab).
-                    key(
-                        settings.ignoreSystemFontScale,
-                        settings.zoomEnabled,
-                        settings.dashboardUser,
-                        settings.dashboardPass,
-                        settings.allowInvalidCerts,
-                    ) {
+                    // Login/Zertifikat kommen über den Controller, damit ein Dashboard-Wechsel
+                    // die WebView nicht neu aufbaut.
+                    key(settings.ignoreSystemFontScale, settings.zoomEnabled) {
                         KioskWebView(
-                            url = settings.dashboardUrl,
+                            url = overrideUrl ?: dashboard.url,
                             controller = webController,
                             ignoreSystemFontScale = settings.ignoreSystemFontScale,
                             zoomEnabled = settings.zoomEnabled,
                             pullToRefresh = settings.pullToRefresh,
-                            authUser = settings.dashboardUser,
-                            authPass = settings.dashboardPass,
-                            allowInvalidCerts = settings.allowInvalidCerts,
+                            auth = DashboardAuth(
+                                user = dashboard.user,
+                                pass = dashboard.pass,
+                                allowInvalidCerts = dashboard.allowInvalidCerts
+                            ),
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -393,7 +430,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun AppDrawer(
-    onDashboard: () -> Unit,
+    settings: Settings,
+    activeDashboard: Int,
+    onDashboard: (Int) -> Unit,
     onReload: () -> Unit,
     onClearCache: () -> Unit,
     onScreenOff: () -> Unit,
@@ -402,22 +441,96 @@ private fun AppDrawer(
     onExit: () -> Unit,
 ) {
     val s = LocalStrings.current
-    ModalDrawerSheet(modifier = Modifier.width(320.dp)) {
-        Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("FullScreendy", style = MaterialTheme.typography.headlineSmall)
-            Text("${s.version} ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall)
-        }
-        HorizontalDivider()
+    val mqttConnected by KioskStatus.mqttConnected.collectAsState()
+    // Halb konfigurierte Reiter (ohne URL) tauchen im Menü nicht auf.
+    val dashboards = settings.usableDashboards().ifEmpty {
+        listOf(IndexedValue(0, settings.dashboardAt(0)))
+    }
 
-        val itemPad = Modifier.padding(horizontal = 12.dp)
-        NavigationDrawerItem(label = { Text(s.navDashboard) }, selected = false, onClick = onDashboard, modifier = itemPad)
-        NavigationDrawerItem(label = { Text(s.navReload) }, selected = false, onClick = onReload, modifier = itemPad)
-        NavigationDrawerItem(label = { Text(s.navClearCache) }, selected = false, onClick = onClearCache, modifier = itemPad)
-        NavigationDrawerItem(label = { Text(s.navScreenOff) }, selected = false, onClick = onScreenOff, modifier = itemPad)
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-        NavigationDrawerItem(label = { Text(s.navSettings) }, selected = false, onClick = onSettings, modifier = itemPad)
-        NavigationDrawerItem(label = { Text(s.navAbout) }, selected = false, onClick = onAbout, modifier = itemPad)
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-        NavigationDrawerItem(label = { Text(s.navExit) }, selected = false, onClick = onExit, modifier = itemPad)
+    ModalDrawerSheet(modifier = Modifier.width(320.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            Column(
+                modifier = Modifier.padding(start = 28.dp, end = 28.dp, top = 28.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    "FullScreendy",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    "${s.version} ${BuildConfig.VERSION_NAME}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    StatusDot(mqttConnected)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        if (mqttConnected) s.statusConnected else s.statusDisconnected,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
+            }
+            HorizontalDivider()
+
+            val itemPad = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+
+            SectionLabel(s.navDashboards, modifier = Modifier.padding(start = 28.dp, top = 12.dp))
+            dashboards.forEach { (index, config) ->
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Filled.Dashboard, contentDescription = null) },
+                    label = { Text(config.displayName(index)) },
+                    badge = {
+                        if (index == settings.defaultIndex) {
+                            Icon(
+                                Icons.Filled.Star,
+                                contentDescription = s.defaultBadge,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    },
+                    selected = index == activeDashboard,
+                    onClick = { onDashboard(index) },
+                    modifier = itemPad
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+            SectionLabel(s.navActions, modifier = Modifier.padding(start = 28.dp))
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Filled.Refresh, contentDescription = null) },
+                label = { Text(s.navReload) }, selected = false, onClick = onReload, modifier = itemPad
+            )
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Filled.DeleteSweep, contentDescription = null) },
+                label = { Text(s.navClearCache) }, selected = false, onClick = onClearCache, modifier = itemPad
+            )
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Filled.DarkMode, contentDescription = null) },
+                label = { Text(s.navScreenOff) }, selected = false, onClick = onScreenOff, modifier = itemPad
+            )
+
+            Spacer(Modifier.height(8.dp))
+            SectionLabel(s.navApp, modifier = Modifier.padding(start = 28.dp))
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
+                label = { Text(s.navSettings) }, selected = false, onClick = onSettings, modifier = itemPad
+            )
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Filled.Info, contentDescription = null) },
+                label = { Text(s.navAbout) }, selected = false, onClick = onAbout, modifier = itemPad
+            )
+            NavigationDrawerItem(
+                icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null) },
+                label = { Text(s.navExit) }, selected = false, onClick = onExit, modifier = itemPad
+            )
+            Spacer(Modifier.height(16.dp))
+        }
     }
 }

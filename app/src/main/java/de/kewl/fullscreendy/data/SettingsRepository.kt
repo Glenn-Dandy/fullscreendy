@@ -10,12 +10,17 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.json.JSONArray
+import org.json.JSONObject
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class SettingsRepository(private val context: Context) {
 
     private object Keys {
+        val DASHBOARDS = stringPreferencesKey("dashboards")
+        val DEFAULT_DASHBOARD = intPreferencesKey("default_dashboard")
+        // Alt (bis 0.4.5): ein einzelnes Dashboard – nur noch zum Migrieren gelesen.
         val DASHBOARD_URL = stringPreferencesKey("dashboard_url")
         val DASHBOARD_USER = stringPreferencesKey("dashboard_user")
         val DASHBOARD_PASS = stringPreferencesKey("dashboard_pass")
@@ -43,16 +48,15 @@ class SettingsRepository(private val context: Context) {
         val RELOAD_INTERVAL = intPreferencesKey("reload_interval_mins")
         val START_ON_BOOT = booleanPreferencesKey("start_on_boot")
         val LANGUAGE = stringPreferencesKey("language")
+        val PIN_ENABLED = booleanPreferencesKey("pin_enabled")
         val ADMIN_PIN = stringPreferencesKey("admin_pin")
     }
 
     val settings: Flow<Settings> = context.dataStore.data.map { p ->
         val defaults = Settings()
         Settings(
-            dashboardUrl = p[Keys.DASHBOARD_URL] ?: defaults.dashboardUrl,
-            dashboardUser = p[Keys.DASHBOARD_USER] ?: defaults.dashboardUser,
-            dashboardPass = p[Keys.DASHBOARD_PASS] ?: defaults.dashboardPass,
-            allowInvalidCerts = p[Keys.ALLOW_INVALID_CERTS] ?: defaults.allowInvalidCerts,
+            dashboards = readDashboards(p) ?: legacyDashboards(p) ?: defaults.dashboards,
+            defaultDashboard = p[Keys.DEFAULT_DASHBOARD] ?: defaults.defaultDashboard,
             mqttHost = p[Keys.MQTT_HOST] ?: defaults.mqttHost,
             mqttPort = p[Keys.MQTT_PORT] ?: defaults.mqttPort,
             mqttTls = p[Keys.MQTT_TLS] ?: defaults.mqttTls,
@@ -76,16 +80,15 @@ class SettingsRepository(private val context: Context) {
             reloadIntervalMins = p[Keys.RELOAD_INTERVAL] ?: defaults.reloadIntervalMins,
             startOnBoot = p[Keys.START_ON_BOOT] ?: defaults.startOnBoot,
             language = p[Keys.LANGUAGE] ?: defaults.language,
+            pinEnabled = p[Keys.PIN_ENABLED] ?: defaults.pinEnabled,
             adminPin = p[Keys.ADMIN_PIN] ?: defaults.adminPin,
         )
     }
 
     suspend fun save(s: Settings) {
         context.dataStore.edit { p ->
-            p[Keys.DASHBOARD_URL] = s.dashboardUrl
-            p[Keys.DASHBOARD_USER] = s.dashboardUser
-            p[Keys.DASHBOARD_PASS] = s.dashboardPass
-            p[Keys.ALLOW_INVALID_CERTS] = s.allowInvalidCerts
+            p[Keys.DASHBOARDS] = encodeDashboards(s.dashboards)
+            p[Keys.DEFAULT_DASHBOARD] = s.defaultIndex
             p[Keys.MQTT_HOST] = s.mqttHost
             p[Keys.MQTT_PORT] = s.mqttPort
             p[Keys.MQTT_TLS] = s.mqttTls
@@ -109,7 +112,54 @@ class SettingsRepository(private val context: Context) {
             p[Keys.RELOAD_INTERVAL] = s.reloadIntervalMins
             p[Keys.START_ON_BOOT] = s.startOnBoot
             p[Keys.LANGUAGE] = s.language
+            p[Keys.PIN_ENABLED] = s.pinEnabled
             p[Keys.ADMIN_PIN] = s.adminPin
         }
+    }
+
+    /** Dashboards liegen als JSON-Array in einem einzigen Preference-Eintrag. */
+    private fun readDashboards(p: Preferences): List<DashboardConfig>? {
+        val raw = p[Keys.DASHBOARDS] ?: return null
+        return runCatching {
+            val arr = JSONArray(raw)
+            (0 until arr.length()).map { i ->
+                val o = arr.getJSONObject(i)
+                DashboardConfig(
+                    name = o.optString("name"),
+                    url = o.optString("url"),
+                    user = o.optString("user"),
+                    pass = o.optString("pass"),
+                    allowInvalidCerts = o.optBoolean("certs"),
+                )
+            }.take(Settings.MAX_DASHBOARDS).ifEmpty { null }
+        }.getOrNull()
+    }
+
+    /** Einmalige Migration aus den Einzelfeldern bis 0.4.5 → Dashboard 1. */
+    private fun legacyDashboards(p: Preferences): List<DashboardConfig>? {
+        val url = p[Keys.DASHBOARD_URL] ?: return null
+        return listOf(
+            DashboardConfig(
+                url = url,
+                user = p[Keys.DASHBOARD_USER].orEmpty(),
+                pass = p[Keys.DASHBOARD_PASS].orEmpty(),
+                allowInvalidCerts = p[Keys.ALLOW_INVALID_CERTS] ?: false,
+            )
+        )
+    }
+
+    private fun encodeDashboards(list: List<DashboardConfig>): String {
+        val arr = JSONArray()
+        list.take(Settings.MAX_DASHBOARDS).forEach { d ->
+            arr.put(
+                JSONObject()
+                    .put("name", d.name)
+                    .put("url", d.url)
+                    .put("user", d.user)
+                    .put("pass", d.pass)
+                    .put("certs", d.allowInvalidCerts)
+            )
+        }
+        return arr.toString()
     }
 }
