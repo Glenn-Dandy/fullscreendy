@@ -144,14 +144,28 @@ class Strings(private val lang: AppLang) {
         "Only a downward pull that starts at the very top of the page reloads. Scrolling up simply stops at the top.",
         "Nur ein Zug nach unten, der am Seitenanfang beginnt, lädt neu. Hochscrollen stoppt einfach oben."
     )
-    val webMic get() = t("Microphone access for dashboard pages", "Mikrofon-Zugriff für Dashboard-Seiten")
-    val webMicHint get() = t(
-        "Lets the loaded page use the microphone (getUserMedia), e.g. for voice control in FHEM. Off: every request is denied. Only enable for dashboards you trust.",
-        "Erlaubt der geladenen Seite das Mikrofon (getUserMedia), z. B. für Sprachsteuerung in FHEM. Aus: jede Anfrage wird abgelehnt. Nur für Dashboards aktivieren, denen du vertraust."
+    // Mikrofon (eine Aufgabe zur Zeit)
+    val micSection get() = t("Microphone", "Mikrofon")
+    val micExclusiveHint get() = t(
+        "The microphone can only serve one purpose at a time.",
+        "Das Mikrofon kann immer nur eine Aufgabe gleichzeitig erfüllen."
     )
-    val webMicNeedsPermission get() = t(
-        "Grant the microphone permission under System first.",
-        "Erst unter System die Mikrofon-Berechtigung erteilen."
+    val micUseNone get() = t("Nothing", "Nichts")
+    val micUseWake get() = t("Wake on sound", "Wecken bei Ton")
+    val micUseWakeHint get() = t(
+        "Loud ambient noise wakes the display (loudness only, no recording).",
+        "Lauter Umgebungsschall weckt das Display (nur Lautstärke, keine Aufnahme)."
+    )
+    val micUseWeb get() = t("Voice control in dashboard", "Sprachsteuerung im Dashboard")
+    val micUseWebHint get() = t(
+        "Lets the loaded page use the microphone (getUserMedia, speech recognition). Only for dashboards you trust.",
+        "Erlaubt der geladenen Seite das Mikrofon (getUserMedia, Spracherkennung). Nur für Dashboards, denen du vertraust."
+    )
+    val micNeedsPermission get() = t("Microphone permission missing", "Mikrofon-Berechtigung fehlt")
+    val micRequestPermission get() = t("Grant microphone permission", "Mikrofon-Berechtigung erteilen")
+    val micNeedsHttps get() = t(
+        "The default dashboard uses http:// – without HTTPS the page gets no microphone at all.",
+        "Das Standard-Dashboard läuft über http:// – ohne HTTPS bekommt die Seite gar kein Mikrofon."
     )
     val ttsEnabled get() = t("Text-to-speech enabled", "Text-to-Speech aktiv")
     val mediaEnabled get() = t("Sound playback enabled", "Tonwiedergabe aktiv")

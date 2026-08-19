@@ -10,6 +10,7 @@ import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -437,35 +439,13 @@ private fun BehaviorSection(draft: Settings, s: Strings, onChange: (Settings) ->
                 onChange(draft.copy(motionSensitivity = it))
             }
         }
-        RowDivider()
-        SwitchRow(s.soundWake, draft.soundWakeEnabled) { onChange(draft.copy(soundWakeEnabled = it)) }
-        if (draft.soundWakeEnabled) {
-            SliderRow(s.soundSensitivity, draft.soundSensitivity) {
-                onChange(draft.copy(soundSensitivity = it))
-            }
-        }
     }
+
+    MicrophoneCard(draft, s, onChange)
 
     SectionCard {
         SwitchRow(s.pullToRefresh, draft.pullToRefresh, hint = s.pullToRefreshHint) {
             onChange(draft.copy(pullToRefresh = it))
-        }
-        RowDivider()
-        SwitchRow(s.webMic, draft.webMicEnabled, hint = s.webMicHint) {
-            onChange(draft.copy(webMicEnabled = it))
-        }
-        if (draft.webMicEnabled) {
-            val ctx = LocalContext.current
-            val micOk = ContextCompat.checkSelfPermission(
-                ctx, Manifest.permission.RECORD_AUDIO
-            ) == PackageManager.PERMISSION_GRANTED
-            if (!micOk) {
-                Text(
-                    s.webMicNeedsPermission,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
         }
         RowDivider()
         SwitchRow(s.ttsEnabled, draft.ttsEnabled) { onChange(draft.copy(ttsEnabled = it)) }
@@ -497,6 +477,96 @@ private fun BehaviorSection(draft: Settings, s: Strings, onChange: (Settings) ->
                     }
                 }
                 IndicatorRow(s.soundTest, soundFlash)
+            }
+        }
+    }
+}
+
+/**
+ * Mikrofon-Karte: Wecken bei Ton und Dashboard-Sprachsteuerung schließen sich
+ * physikalisch aus – ein Mikrofon, ein Nutzer. Deshalb eine Auswahl statt zweier
+ * Schalter: der ungültige Zustand ist damit gar nicht erst erreichbar.
+ */
+@Composable
+private fun MicrophoneCard(draft: Settings, s: Strings, onChange: (Settings) -> Unit) {
+    val context = LocalContext.current
+    var micGranted by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+    val micLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted -> micGranted = granted }
+
+    val use = when {
+        draft.webMicEnabled -> MicUse.Web
+        draft.soundWakeEnabled -> MicUse.Wake
+        else -> MicUse.None
+    }
+    fun select(target: MicUse) = onChange(
+        draft.copy(
+            soundWakeEnabled = target == MicUse.Wake,
+            webMicEnabled = target == MicUse.Web,
+        )
+    )
+
+    SectionCard(s.micSection) {
+        Text(s.micExclusiveHint, style = MaterialTheme.typography.bodySmall)
+        RadioRow(s.micUseNone, null, use == MicUse.None) { select(MicUse.None) }
+        RadioRow(s.micUseWake, s.micUseWakeHint, use == MicUse.Wake) { select(MicUse.Wake) }
+        RadioRow(s.micUseWeb, s.micUseWebHint, use == MicUse.Web) { select(MicUse.Web) }
+
+        if (use == MicUse.Wake) {
+            SliderRow(s.soundSensitivity, draft.soundSensitivity) {
+                onChange(draft.copy(soundSensitivity = it))
+            }
+        }
+        if (use != MicUse.None && !micGranted) {
+            RowDivider()
+            Text(
+                s.micNeedsPermission,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+            OutlinedButton(
+                onClick = { micLauncher.launch(Manifest.permission.RECORD_AUDIO) },
+                modifier = Modifier.fillMaxWidth()
+            ) { Text(s.micRequestPermission) }
+        }
+        // Ohne HTTPS gibt es in der WebView kein getUserMedia – häufigste Stolperfalle.
+        if (use == MicUse.Web && draft.defaultDashboardConfig.url.startsWith("http://", ignoreCase = true)) {
+            RowDivider()
+            Text(
+                s.micNeedsHttps,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
+
+private enum class MicUse { None, Wake, Web }
+
+@Composable
+private fun RadioRow(label: String, hint: String?, selected: Boolean, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(selected = selected, onClick = onClick)
+        Column(modifier = Modifier.padding(start = 4.dp)) {
+            Text(label, style = MaterialTheme.typography.bodyLarge)
+            if (hint != null) {
+                Text(
+                    hint,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
             }
         }
     }

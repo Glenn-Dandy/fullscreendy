@@ -1,5 +1,5 @@
 --- voicecontrol.js	2026-08-19 23:21:27.693450912 +0200
-+++ voicecontrol-fullscreendy.js	2026-08-19 23:51:17.170032814 +0200
++++ voicecontrol-fullscreendy.js	2026-08-20 01:07:29.078688895 +0200
 @@ -33,7 +33,15 @@
          const wakewords = ["james"];
          const SpeechRecognition = (window.SpeechRecognition || window.webkitSpeechRecognition) || null;
@@ -29,3 +29,35 @@
                      let duration = Math.max(1200, text.length * 85);
                      setTimeout(() => { 
                          isSpeaking = false; 
+@@ -438,6 +446,8 @@
+                 clearTimeout(pressTimer);
+                 pressTimer = null;
+                 isJamesActive = !isJamesActive;
++                // FullScreendy-Patch: Dauerlauschen über Neuladen hinweg merken
++                try { localStorage.setItem("voicecontrol_active", isJamesActive ? "1" : "0"); } catch(e){}
+                 btn.style.color = isJamesActive ? COLOR_IDLE : COLOR_OFF;
+                 updateWaveAnimation();
+                 if(isJamesActive){
+@@ -472,6 +482,22 @@
+         btn.addEventListener('contextmenu', (e) => e.preventDefault());
+ 
+         registerVoiceWidget();
++
++        // --- FullScreendy-Patch ---------------------------------------------
++        // War das Dauerlauschen zuletzt an, nach dem Laden von selbst wieder
++        // starten. Nötig im Kiosk-Betrieb: periodischer Reload, Aufwecken oder
++        // ein Dashboard-Wechsel bauen die Seite neu auf – ohne das hier wäre die
++        // Sprachsteuerung danach still, bis jemand den Knopf antippt.
++        try {
++            if (SpeechRecognition && localStorage.getItem("voicecontrol_active") === "1") {
++                isJamesActive = true;
++                btn.style.color = COLOR_IDLE;
++                updateWaveAnimation();
++                showBubble("🤖 Aktiv", 2000);
++                setTimeout(() => { try { recognition.start(); } catch(e){} }, 1500);
++            }
++        } catch(e){}
++        // --- Ende FullScreendy-Patch ----------------------------------------
+     }
+ 
+     if(document.readyState==="complete") init();

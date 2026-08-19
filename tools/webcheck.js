@@ -114,7 +114,8 @@
   // ---- 3. Aktive Tests -----------------------------------------------------
   list.appendChild(el("div", "margin:12px 0 2px;color:#7aa7ff;font-weight:600", "Tests (antippen)"));
   var micRow = row("Mikrofon-Anfrage", null, "noch nicht getestet");
-  var ttsRow = row("Sprachausgabe", null, "noch nicht getestet");
+  var ttsRow = row("Sprachausgabe (Web)", null, "noch nicht getestet");
+  var bridgeRow = row("Sprachausgabe (Brücke)", null, "noch nicht getestet");
   var sttRow = row("Spracherkennung", null, "noch nicht getestet");
 
   var bar = el("div", "display:flex;flex-wrap:wrap;gap:8px;margin-top:12px");
@@ -156,6 +157,21 @@
         if (lines[i].indexOf("spreche") > -1) ttsRow(false, "keine Reaktion – kein TTS-Backend");
       }, 4000);
     } catch (e) { ttsRow(false, e.name + ": " + e.message); }
+  });
+
+  button("🔈 Brücke sprechen", function () {
+    var b = window.fullscreendy;
+    if (!b || typeof b.textToSpeech !== "function") {
+      bridgeRow(false, "window.fullscreendy fehlt – App zu alt oder anderer Browser");
+      return;
+    }
+    try {
+      b.textToSpeech("Die Brücke funktioniert");
+      bridgeRow(true, "Aufruf abgesetzt – hörst du es? (App-Version " +
+        (typeof b.getVersion === "function" ? b.getVersion() : "?") + ")");
+    } catch (e) {
+      bridgeRow(false, e.name + ": " + e.message);
+    }
   });
 
   button("🗣️ Spracherkennung", function () {

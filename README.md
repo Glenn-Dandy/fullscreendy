@@ -268,10 +268,14 @@ fullscreendy.getVersion();                             // e.g. "0.4.6"
 
 **Microphone for web pages:** a page's `getUserMedia()` request (voice control,
 wake-word engines) is **denied by default** – the Android permission alone is not
-enough, the WebView needs its own grant. Enable *Settings → Behavior → "Microphone
-access for dashboard pages"* and grant the microphone permission under *System*.
-Only audio is granted, and only while the switch is on. `getUserMedia` also requires
-a secure context, so the dashboard must be served over **HTTPS**.
+enough, the WebView needs its own grant. Under *Settings → Behavior → Microphone*
+you pick what the microphone is used for: *Nothing*, *Wake on sound*, or *Voice
+control in dashboard*. It is a single choice on purpose – the microphone can only
+serve one consumer at a time, so wake-on-sound and a listening dashboard would block
+each other. Only audio is granted, and only while *Voice control* is selected.
+`getUserMedia` also requires a secure context, so the dashboard must be served over
+**HTTPS** – the settings screen warns if the default dashboard is a plain `http://`
+URL.
 
 A ready-made patch for the FHEM wiki script
 [VoiceControl: Web-STT](https://wiki.fhem.de/wiki/FHEMWEB/VoiceControl:_Web-STT_%26_Hardware-Wakeword)

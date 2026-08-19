@@ -278,11 +278,14 @@ fullscreendy.getVersion();                             // z. B. "0.4.6"
 
 **Mikrofon für Webseiten:** Eine `getUserMedia()`-Anfrage der Seite (Sprachsteuerung,
 Wakeword-Engines) wird **standardmäßig abgelehnt** – die Android-Berechtigung allein
-genügt nicht, die WebView braucht eine eigene Freigabe. Dafür *Einstellungen →
-Verhalten → „Mikrofon-Zugriff für Dashboard-Seiten"* aktivieren und unter *System*
-die Mikrofon-Berechtigung erteilen. Freigegeben wird nur Audio und nur, solange der
-Schalter an ist. `getUserMedia` verlangt außerdem einen Secure Context, das Dashboard
-muss also über **HTTPS** laufen.
+genügt nicht, die WebView braucht eine eigene Freigabe. Unter *Einstellungen →
+Verhalten → Mikrofon* wählst du, wofür das Mikrofon genutzt wird: *Nichts*, *Wecken
+bei Ton* oder *Sprachsteuerung im Dashboard*. Bewusst eine Auswahl und keine zwei
+Schalter – das Mikrofon kann immer nur einen Nutzer bedienen, Wecken bei Ton und ein
+lauschendes Dashboard würden sich gegenseitig blockieren. Freigegeben wird nur Audio
+und nur bei *Sprachsteuerung*. `getUserMedia` verlangt außerdem einen Secure Context,
+das Dashboard muss also über **HTTPS** laufen – die Einstellungen warnen, wenn das
+Standard-Dashboard eine reine `http://`-Adresse ist.
 
 Ein fertiger Patch für das FHEM-Wiki-Skript
 [VoiceControl: Web-STT](https://wiki.fhem.de/wiki/FHEMWEB/VoiceControl:_Web-STT_%26_Hardware-Wakeword)
