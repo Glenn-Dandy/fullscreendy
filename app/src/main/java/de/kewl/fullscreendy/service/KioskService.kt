@@ -31,6 +31,7 @@ import de.kewl.fullscreendy.diag.DiagLog
 import de.kewl.fullscreendy.kiosk.KioskBus
 import de.kewl.fullscreendy.kiosk.KioskCommand
 import de.kewl.fullscreendy.kiosk.KioskStatus
+import de.kewl.fullscreendy.kiosk.UiEvent
 import de.kewl.fullscreendy.mqtt.MqttConfig
 import de.kewl.fullscreendy.mqtt.MqttManager
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -77,6 +78,15 @@ class KioskService : LifecycleService() {
             repo.settings.distinctUntilChanged().collect { s ->
                 settings = s
                 applySettings(s)
+            }
+        }
+        // Sprachausgabe-Wünsche der JS-Brücke (window.fullscreendy.textToSpeech).
+        lifecycleScope.launch {
+            KioskBus.uiEvents.collect { event ->
+                when (event) {
+                    is UiEvent.Speak -> if (settings.ttsEnabled) tts.speak(event.text)
+                    UiEvent.StopSpeech -> tts.stop()
+                }
             }
         }
         // Die UI meldet, welches Dashboard gerade sichtbar ist (Menü, MQTT, Aufwecken).

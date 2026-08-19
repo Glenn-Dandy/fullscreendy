@@ -46,6 +46,8 @@ data class Settings(
     val mediaEnabled: Boolean = true,
     val zoomEnabled: Boolean = false,
     val pullToRefresh: Boolean = true,
+    /** Dashboard-Seiten dürfen das Mikrofon nutzen (getUserMedia); aus = Anfragen werden abgelehnt. */
+    val webMicEnabled: Boolean = false,
     /** Dashboard periodisch neu laden (setzt WebView-Speicher zurück); Minuten, 0 = aus. */
     val reloadIntervalMins: Int = 360,
     val startOnBoot: Boolean = true,

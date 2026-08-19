@@ -251,6 +251,36 @@ Under *Settings → System → Permissions* (grant once; granted permissions sho
 The device-admin button shows the current status (“Device admin active ✓”) and falls
 back to the security settings if the direct dialog is unavailable on the device.
 
+## Dashboard JS interface
+
+Android's WebView has **no** `speechSynthesis` – Web Speech output simply does not
+exist there (verified on Android 15 / WebView 151: `webkitSpeechRecognition` is
+present, `speechSynthesis` is not). For dashboards that want to speak, FullScreendy
+exposes a small bridge to the page:
+
+```js
+fullscreendy.textToSpeech("Der Keller ist zu kalt");  // speaks via Android TTS
+fullscreendy.stopSpeech();                             // stops playback
+fullscreendy.getVersion();                             // e.g. "0.4.6"
+```
+
+`textToSpeech` honours *Settings → Behavior → Text-to-speech enabled*.
+
+**Microphone for web pages:** a page's `getUserMedia()` request (voice control,
+wake-word engines) is **denied by default** – the Android permission alone is not
+enough, the WebView needs its own grant. Enable *Settings → Behavior → "Microphone
+access for dashboard pages"* and grant the microphone permission under *System*.
+Only audio is granted, and only while the switch is on. `getUserMedia` also requires
+a secure context, so the dashboard must be served over **HTTPS**.
+
+A ready-made patch for the FHEM wiki script
+[VoiceControl: Web-STT](https://wiki.fhem.de/wiki/FHEMWEB/VoiceControl:_Web-STT_%26_Hardware-Wakeword)
+is in `tools/voicecontrol-fullscreendy.patch`; `tools/webcheck.js` is a diagnostic
+panel (`attr WEB JavaScripts www/pgm2/webcheck.js`) that reports which speech APIs
+the displaying browser actually has.
+
+---
+
 ## Architecture (overview)
 
 ```

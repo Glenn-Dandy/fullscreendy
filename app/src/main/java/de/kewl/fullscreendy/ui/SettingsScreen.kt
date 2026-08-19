@@ -451,6 +451,23 @@ private fun BehaviorSection(draft: Settings, s: Strings, onChange: (Settings) ->
             onChange(draft.copy(pullToRefresh = it))
         }
         RowDivider()
+        SwitchRow(s.webMic, draft.webMicEnabled, hint = s.webMicHint) {
+            onChange(draft.copy(webMicEnabled = it))
+        }
+        if (draft.webMicEnabled) {
+            val ctx = LocalContext.current
+            val micOk = ContextCompat.checkSelfPermission(
+                ctx, Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!micOk) {
+                Text(
+                    s.webMicNeedsPermission,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+        RowDivider()
         SwitchRow(s.ttsEnabled, draft.ttsEnabled) { onChange(draft.copy(ttsEnabled = it)) }
         RowDivider()
         SwitchRow(s.mediaEnabled, draft.mediaEnabled) { onChange(draft.copy(mediaEnabled = it)) }

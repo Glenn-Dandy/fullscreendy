@@ -1,0 +1,31 @@
+--- voicecontrol.js	2026-08-19 23:21:27.693450912 +0200
++++ voicecontrol-fullscreendy.js	2026-08-19 23:51:17.170032814 +0200
+@@ -33,7 +33,15 @@
+         const wakewords = ["james"];
+         const SpeechRecognition = (window.SpeechRecognition || window.webkitSpeechRecognition) || null;
+ 
+-        const isFully = (typeof fully !== 'undefined' && typeof fully.textToSpeech === 'function');
++        // --- FullScreendy-Patch -------------------------------------------------
++        // Die Android-WebView kennt kein speechSynthesis. FullScreendy stellt dafür
++        // window.fullscreendy.textToSpeech() bereit (ab 0.4.6-dev.2), Fully sein
++        // window.fully.textToSpeech(). Beide werden hier gleich behandelt.
++        const nativeTTS =
++            (typeof fullscreendy !== 'undefined' && typeof fullscreendy.textToSpeech === 'function') ? fullscreendy :
++            (typeof fully !== 'undefined' && typeof fully.textToSpeech === 'function') ? fully : null;
++        const isFully = (nativeTTS !== null);
++        // --- Ende FullScreendy-Patch --------------------------------------------
+         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || isFully;
+ 
+         const WAKEWORDTRIGGER = "wakeword_detected";
+@@ -124,9 +132,9 @@
+             isSpeaking = true;
+             updateWaveAnimation();
+ 
+-            if (isFully) {
++            if (nativeTTS) {
+                 try {
+-                    fully.textToSpeech(text);
++                    nativeTTS.textToSpeech(text);
+                     let duration = Math.max(1200, text.length * 85);
+                     setTimeout(() => { 
+                         isSpeaking = false; 

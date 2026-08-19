@@ -365,6 +365,7 @@ class MainActivity : ComponentActivity() {
                                 pass = dashboard.pass,
                                 allowInvalidCerts = dashboard.allowInvalidCerts
                             ),
+                            webMicEnabled = settings.webMicEnabled,
                             modifier = Modifier.fillMaxSize()
                         )
                     }

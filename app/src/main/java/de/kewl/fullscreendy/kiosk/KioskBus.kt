@@ -24,6 +24,15 @@ sealed interface KioskCommand {
     data object Unlock : KioskCommand
 }
 
+/** Ereignisse, die die UI (bzw. die JS-Brücke im Dashboard) an den Dienst schickt. */
+sealed interface UiEvent {
+    /** Text über den TtsManager des Dienstes sprechen. */
+    data class Speak(val text: String) : UiEvent
+
+    /** Laufende Sprachausgabe abbrechen. */
+    data object StopSpeech : UiEvent
+}
+
 /**
  * Einfacher prozessweiter Event-Bus. Der [de.kewl.fullscreendy.service.KioskService]
  * sendet Befehle, die [de.kewl.fullscreendy.MainActivity] konsumiert.
@@ -37,5 +46,13 @@ object KioskBus {
 
     fun send(command: KioskCommand) {
         _commands.tryEmit(command)
+    }
+
+    private val _uiEvents = MutableSharedFlow<UiEvent>(replay = 0, extraBufferCapacity = 16)
+    val uiEvents = _uiEvents.asSharedFlow()
+
+    /** Wird auch aus dem JS-Bridge-Thread aufgerufen – tryEmit ist dafür sicher. */
+    fun sendUi(event: UiEvent) {
+        _uiEvents.tryEmit(event)
     }
 }

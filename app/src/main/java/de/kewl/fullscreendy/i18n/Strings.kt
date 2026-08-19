@@ -144,6 +144,15 @@ class Strings(private val lang: AppLang) {
         "Only a downward pull that starts at the very top of the page reloads. Scrolling up simply stops at the top.",
         "Nur ein Zug nach unten, der am Seitenanfang beginnt, lädt neu. Hochscrollen stoppt einfach oben."
     )
+    val webMic get() = t("Microphone access for dashboard pages", "Mikrofon-Zugriff für Dashboard-Seiten")
+    val webMicHint get() = t(
+        "Lets the loaded page use the microphone (getUserMedia), e.g. for voice control in FHEM. Off: every request is denied. Only enable for dashboards you trust.",
+        "Erlaubt der geladenen Seite das Mikrofon (getUserMedia), z. B. für Sprachsteuerung in FHEM. Aus: jede Anfrage wird abgelehnt. Nur für Dashboards aktivieren, denen du vertraust."
+    )
+    val webMicNeedsPermission get() = t(
+        "Grant the microphone permission under System first.",
+        "Erst unter System die Mikrofon-Berechtigung erteilen."
+    )
     val ttsEnabled get() = t("Text-to-speech enabled", "Text-to-Speech aktiv")
     val mediaEnabled get() = t("Sound playback enabled", "Tonwiedergabe aktiv")
 

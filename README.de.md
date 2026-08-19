@@ -261,6 +261,37 @@ Der Geräteadmin-Button zeigt den aktuellen Status („Geräteadmin aktiv ✓“
 öffnet zur Not die Sicherheits-Einstellungen, falls der direkte Dialog auf dem
 Gerät nicht verfügbar ist.
 
+## JS-Schnittstelle fürs Dashboard
+
+Die Android-WebView hat **kein** `speechSynthesis` – Web-Sprachausgabe gibt es dort
+schlicht nicht (auf Android 15 / WebView 151 nachgemessen: `webkitSpeechRecognition`
+ist vorhanden, `speechSynthesis` nicht). Für Dashboards, die sprechen wollen, bietet
+FullScreendy der Seite deshalb eine kleine Brücke an:
+
+```js
+fullscreendy.textToSpeech("Der Keller ist zu kalt");  // spricht über Android-TTS
+fullscreendy.stopSpeech();                             // bricht die Ausgabe ab
+fullscreendy.getVersion();                             // z. B. "0.4.6"
+```
+
+`textToSpeech` beachtet *Einstellungen → Verhalten → Text-to-Speech aktiv*.
+
+**Mikrofon für Webseiten:** Eine `getUserMedia()`-Anfrage der Seite (Sprachsteuerung,
+Wakeword-Engines) wird **standardmäßig abgelehnt** – die Android-Berechtigung allein
+genügt nicht, die WebView braucht eine eigene Freigabe. Dafür *Einstellungen →
+Verhalten → „Mikrofon-Zugriff für Dashboard-Seiten"* aktivieren und unter *System*
+die Mikrofon-Berechtigung erteilen. Freigegeben wird nur Audio und nur, solange der
+Schalter an ist. `getUserMedia` verlangt außerdem einen Secure Context, das Dashboard
+muss also über **HTTPS** laufen.
+
+Ein fertiger Patch für das FHEM-Wiki-Skript
+[VoiceControl: Web-STT](https://wiki.fhem.de/wiki/FHEMWEB/VoiceControl:_Web-STT_%26_Hardware-Wakeword)
+liegt unter `tools/voicecontrol-fullscreendy.patch`; `tools/webcheck.js` ist ein
+Diagnose-Panel (`attr WEB JavaScripts www/pgm2/webcheck.js`), das anzeigt, welche
+Sprach-APIs der anzeigende Browser tatsächlich mitbringt.
+
+---
+
 ## Architektur (Kurzüberblick)
 
 ```

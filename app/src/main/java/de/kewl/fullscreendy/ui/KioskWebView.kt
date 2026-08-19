@@ -2,8 +2,11 @@ package de.kewl.fullscreendy.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.view.MotionEvent
 import android.view.ViewGroup
+import android.webkit.JavascriptInterface
+import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
@@ -13,7 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import de.kewl.fullscreendy.kiosk.KioskBus
+import de.kewl.fullscreendy.kiosk.UiEvent
 import kotlin.math.roundToInt
 
 /** Login/Zertifikats-Einstellungen des gerade angezeigten Dashboards. */
@@ -35,6 +41,10 @@ class WebController {
     var auth: DashboardAuth = DashboardAuth()
         internal set
 
+    /** Darf die geladene Seite das Mikrofon anfragen (getUserMedia)? */
+    var webMicEnabled: Boolean = false
+        internal set
+
     fun reload() {
         webView?.post { webView?.reload() }
     }
@@ -46,6 +56,33 @@ class WebController {
 
 @Composable
 fun rememberWebController(): WebController = remember { WebController() }
+
+/**
+ * JS-Schnittstelle für Dashboard-Seiten: `window.fullscreendy.…`
+ *
+ * Die Android-WebView bringt keine Web-Speech-Sprachausgabe mit (`speechSynthesis`
+ * fehlt), deshalb reicht die Brücke den Text an den TtsManager des Dienstes weiter.
+ * Nur mit @JavascriptInterface annotierte Methoden sind für die Seite sichtbar.
+ */
+class FullScreendyBridge {
+
+    /** Text über die Android-Sprachausgabe sprechen. */
+    @JavascriptInterface
+    fun textToSpeech(text: String?) {
+        val t = text?.trim().orEmpty()
+        if (t.isNotEmpty()) KioskBus.sendUi(UiEvent.Speak(t))
+    }
+
+    /** Laufende Sprachausgabe abbrechen. */
+    @JavascriptInterface
+    fun stopSpeech() {
+        KioskBus.sendUi(UiEvent.StopSpeech)
+    }
+
+    /** App-Version – auch als Erkennungsmerkmal für Skripte. */
+    @JavascriptInterface
+    fun getVersion(): String = de.kewl.fullscreendy.BuildConfig.VERSION_NAME
+}
 
 /**
  * SwipeRefresh, das nur auslöst, wenn die Zieh-Geste am Seitenanfang *beginnt*.
@@ -86,6 +123,7 @@ fun KioskWebView(
     zoomEnabled: Boolean,
     pullToRefresh: Boolean,
     auth: DashboardAuth = DashboardAuth(),
+    webMicEnabled: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     AndroidView(
@@ -132,7 +170,24 @@ fun KioskWebView(
                         if (controller.auth.allowInvalidCerts) handler.proceed() else handler.cancel()
                     }
                 }
-                webChromeClient = WebChromeClient()
+                webChromeClient = object : WebChromeClient() {
+                    // Ohne diese Behandlung lehnt die WebView jede getUserMedia-Anfrage
+                    // still ab (NotAllowedError) – die Android-Berechtigung allein reicht
+                    // nicht. Freigegeben wird nur das Mikrofon und nur, wenn der Nutzer
+                    // es für Dashboard-Seiten erlaubt hat.
+                    override fun onPermissionRequest(request: PermissionRequest) {
+                        val wantsAudio = request.resources.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)
+                        val micGranted = ContextCompat.checkSelfPermission(
+                            ctx, android.Manifest.permission.RECORD_AUDIO
+                        ) == PackageManager.PERMISSION_GRANTED
+                        if (controller.webMicEnabled && wantsAudio && micGranted) {
+                            request.grant(arrayOf(PermissionRequest.RESOURCE_AUDIO_CAPTURE))
+                        } else {
+                            request.deny()
+                        }
+                    }
+                }
+                addJavascriptInterface(FullScreendyBridge(), "fullscreendy")
                 // Schwarz statt Weiß während Lade-/Neuzeichnen-Lücken (kein weißer Blitz).
                 setBackgroundColor(android.graphics.Color.BLACK)
                 settings.apply {
@@ -175,6 +230,7 @@ fun KioskWebView(
         update = { refresh ->
             refresh.isEnabled = pullToRefresh
             controller.auth = auth
+            controller.webMicEnabled = webMicEnabled
             // WebView aus dem Controller nehmen (getChildAt(0) wäre der Lade-Kreis).
             controller.webView?.let { web ->
                 if (web.tag != url) {
