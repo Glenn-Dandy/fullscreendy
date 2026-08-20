@@ -10,7 +10,7 @@ Donate: https://paypal.me/GlennDandy
 
 RepoType: git
 Repo: https://github.com/Glenn-Dandy/fullscreendy.git
-Binaries:  
+Binaries: 
   https://github.com/Glenn-Dandy/fullscreendy/releases/download/v%v/FullScreendy-%v-release.apk
 
 Builds:
