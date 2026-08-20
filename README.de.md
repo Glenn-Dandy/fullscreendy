@@ -70,7 +70,7 @@ Fertige signierte APKs gibt es auf der [Releases-Seite](https://github.com/Glenn
      des Bildschirms angezeigt.
    - *Verbindung*: **MQTT-Host/Port** (+ ggf. Benutzer/Passwort/TLS), **Basis-Topic**
      (Standard `fhem/tablet`) und **Geräte-ID** (Standard `tablet1`)
-   - *System*: Sprache, **PIN-Schutz** (abschaltbar) und Admin-PIN (Standard `0000`)
+   - *System*: Sprache, **PIN-Schutz** (Standard aus) und Admin-PIN (Standard `0000`)
 3. Die Einstellungen speichern sich ~1 s nach der letzten Änderung selbst; zurück →
    das Dashboard wird angezeigt.
 
@@ -250,7 +250,7 @@ Unter *Einstellungen → Anzeige*:
   wichtigste Maßnahme gegen `LOW_MEMORY`-Kills im Dauerbetrieb.
 
 Unter *Einstellungen → System*:
-- **PIN-Schutz für Einstellungen** (Standard an): Ausgeschaltet öffnen sich die
+- **PIN-Schutz für Einstellungen** (Standard aus): Ausgeschaltet öffnen sich die
   *Einstellungen* aus dem Menü ohne PIN-Abfrage – praktisch auf einem Tablet, an das
   sonst niemand herankommt.
 

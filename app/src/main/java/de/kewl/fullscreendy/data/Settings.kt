@@ -53,8 +53,12 @@ data class Settings(
     val startOnBoot: Boolean = true,
     /** UI-Sprache: "en" (Standard) oder "de". */
     val language: String = "en",
-    /** PIN-Abfrage vor den Einstellungen; aus = Einstellungen ohne PIN erreichbar. */
-    val pinEnabled: Boolean = true,
+    /**
+     * PIN-Abfrage vor den Einstellungen. Standard **aus**: Auf einem Wandtablet im
+     * eigenen Zuhause ist die Abfrage bei jedem Handgriff lästiger als nützlich –
+     * wer sie braucht, schaltet sie unter System ein.
+     */
+    val pinEnabled: Boolean = false,
     val adminPin: String = "0000",
 ) {
     val isConfigured: Boolean

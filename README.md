@@ -67,7 +67,7 @@ Prebuilt signed APKs are on the [Releases page](https://github.com/Glenn-Dandy/f
      start and again every time the screen wakes up.
    - *Connection*: **MQTT host/port** (+ optional user/password/TLS), **base topic**
      (default `fhem/tablet`) and **device ID** (default `tablet1`)
-   - *System*: language, **PIN protection** (can be switched off) and admin PIN
+   - *System*: language, **PIN protection** (off by default) and admin PIN
      (default `0000`)
 3. Settings save themselves ~1 s after the last change; go back → the dashboard is shown.
 
@@ -243,7 +243,7 @@ Under *Settings → Display*:
   defense against Android killing the app for `LOW_MEMORY` in long-term operation.
 
 Under *Settings → System*:
-- **PIN protection for settings** (on by default): when switched off, *Settings* opens
+- **PIN protection for settings** (off by default): when switched off, *Settings* opens
   from the menu without a PIN – handy on a tablet nobody else touches.
 
 Under *Settings → System → Permissions* (grant once; granted permissions show a “✓”):
