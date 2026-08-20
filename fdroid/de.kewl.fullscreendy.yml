@@ -12,14 +12,11 @@ RepoType: git
 Repo: https://github.com/Glenn-Dandy/fullscreendy.git
 
 Builds:
-  # commit MUSS der volle 40-stellige Hash sein, kein Tag-Name: ein Tag laesst sich
-  # nachtraeglich verschieben, der Build waere dann nicht mehr nachvollziehbar.
-  # Der Hash wird beim Taggen von 0.4.7 eingesetzt (git rev-list -n1 v0.4.7).
-  # v0.4.6 kommt nicht in Frage: dieser Commit (fdc7ea88...) enthaelt weder das
-  # fdroid-Flavor noch den Wrapper noch die Fastlane-Texte.
+  # Voller 40-stelliger Hash, kein Tag-Name: ein Tag laesst sich nachtraeglich
+  # verschieben, der Build waere dann nicht mehr nachvollziehbar. Entspricht v0.4.7.
   - versionName: 0.4.7
     versionCode: 20
-    commit: FULL_COMMIT_HASH_OF_TAG_v0.4.7
+    commit: 2806a28cfcf4dc1a202157c922094e9da9df5897
     subdir: app
     gradle:
       - fdroid
