@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nur im github-Flavor: Das In-App-Update lädt die APK von der GitHub-Release-Seite
+  und startet die Installation. Der fdroid-Flavor hat weder diese Berechtigung noch
+  den Download-Pfad – dort aktualisiert F-Droid selbst.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+</manifest>

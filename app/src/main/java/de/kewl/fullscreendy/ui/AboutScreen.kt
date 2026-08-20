@@ -183,8 +183,17 @@ fun AboutScreen(settings: Settings, onBack: () -> Unit) {
                                 fontWeight = FontWeight.SemiBold
                             )
                             RowDivider()
-                            ActionRow(Icons.Filled.Download, s.updateInstall, showArrow = false) {
-                                startDownload(st.info)
+                            // Der fdroid-Flavor bringt keinen Installer mit (F-Droid
+                            // aktualisiert selbst) – dort nur zur Release-Seite verlinken.
+                            if (BuildConfig.UPDATER) {
+                                ActionRow(Icons.Filled.Download, s.updateInstall, showArrow = false) {
+                                    startDownload(st.info)
+                                }
+                            } else {
+                                Text(s.updateViaFdroid, style = MaterialTheme.typography.bodySmall)
+                                ActionRow(Icons.Filled.Download, s.updateOpenPage) {
+                                    openUrl("${Repo.URL}/releases")
+                                }
                             }
                         }
 

@@ -1,0 +1,26 @@
+Categories:
+  - Internet
+  - System
+License: MIT
+AuthorName: Glenn-Dandy
+SourceCode: https://github.com/Glenn-Dandy/fullscreendy
+IssueTracker: https://github.com/Glenn-Dandy/fullscreendy/issues
+Changelog: https://github.com/Glenn-Dandy/fullscreendy/blob/HEAD/CHANGELOG.md
+Donate: https://paypal.me/GlennDandy
+
+RepoType: git
+Repo: https://github.com/Glenn-Dandy/fullscreendy.git
+
+Builds:
+  - versionName: 0.4.6
+    versionCode: 19
+    commit: v0.4.6
+    subdir: app
+    gradle:
+      - fdroid
+
+AutoUpdateMode: Version
+# Nur stabile Tags bauen – die Pre-Releases heissen vX.Y.Z-dev.N.
+UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+$
+CurrentVersion: 0.4.6
+CurrentVersionCode: 19

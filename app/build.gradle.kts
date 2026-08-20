@@ -10,8 +10,9 @@ plugins {
 // Signier-Konfiguration aus keystore.properties (nicht im Git). Fehlt die Datei,
 // bleibt der Release-Build unsigniert (z. B. auf fremden Rechnern).
 val keystorePropsFile = rootProject.file("keystore.properties")
+val hasKeystore = keystorePropsFile.exists()
 val keystoreProps = Properties().apply {
-    if (keystorePropsFile.exists()) load(FileInputStream(keystorePropsFile))
+    if (hasKeystore) load(FileInputStream(keystorePropsFile))
 }
 
 android {
@@ -25,11 +26,30 @@ android {
         versionCode = 19
         versionName = "0.4.6"
         buildConfigField("boolean", "DEV", "false") // Default für alle Varianten; dev überschreibt
+        buildConfigField("boolean", "UPDATER", "true") // Default; das fdroid-Flavor schaltet ab
     }
 
+    // F-Droid baut und signiert selbst und nimmt keine Apps, die sich über einen
+    // eigenen APK-Download aktualisieren. Deshalb zwei Varianten: "github" mit
+    // In-App-Update, "fdroid" ohne Updater und ohne REQUEST_INSTALL_PACKAGES
+    // (die Berechtigung steht in src/github/AndroidManifest.xml).
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("github") {
+            dimension = "distribution"
+            buildConfigField("boolean", "UPDATER", "true")
+        }
+        create("fdroid") {
+            dimension = "distribution"
+            buildConfigField("boolean", "UPDATER", "false")
+        }
+    }
+
+    // Ohne keystore.properties (z. B. auf dem F-Droid-Buildserver) gibt es gar keine
+    // Signier-Konfiguration – der Build läuft dann durch und liefert ein unsigniertes APK.
     signingConfigs {
-        create("release") {
-            if (keystorePropsFile.exists()) {
+        if (hasKeystore) {
+            create("release") {
                 storeFile = file(keystoreProps["storeFile"] as String)
                 storePassword = keystoreProps["storePassword"] as String
                 keyAlias = keystoreProps["keyAlias"] as String
@@ -40,9 +60,14 @@ android {
 
     buildTypes {
         release {
+            // Keine Git-/VCS-Infos ins APK schreiben – das ist die einzige nicht
+            // reproduzierbare Datei (version-control-info.textproto).
+            vcsInfo {
+                include = false
+            }
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
+            if (hasKeystore) signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

@@ -34,9 +34,19 @@ Requires **Android Studio** (Ladybug or newer) with Android SDK 35.
    *Build → Build Bundle(s)/APK(s) → Build APK(s)*.
 
 ```bash
-gradle wrapper            # once, creates ./gradlew
-./gradlew assembleDebug    # APK: app/build/outputs/apk/debug/app-debug.apk
+./gradlew assembleGithubDebug      # app/build/outputs/apk/github/debug/
+./gradlew assembleGithubRelease    # signed release (needs keystore.properties)
+./gradlew assembleGithubDev -PdevNum=1   # pre-release build, version 0.x.y-dev.1
+./gradlew assembleFdroidRelease    # F-Droid variant, builds unsigned without a keystore
 ```
+
+There are two flavors on the `distribution` dimension: **github** ships the in-app
+updater (check, download, install), **fdroid** does not – it only checks and links to
+the release page, and `REQUEST_INSTALL_PACKAGES` is absent from its manifest, because
+F-Droid updates apps itself. Details in [`fdroid/README.md`](fdroid/README.md).
+
+Without `keystore.properties` no signing config is created at all, so the build still
+succeeds and produces an unsigned APK.
 
 Prebuilt signed APKs are on the [Releases page](https://github.com/Glenn-Dandy/fullscreendy/releases).
 
