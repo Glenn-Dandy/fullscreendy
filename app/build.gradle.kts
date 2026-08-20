@@ -23,10 +23,17 @@ android {
         applicationId = "de.kewl.fullscreendy"
         minSdk = 28
         targetSdk = 35
-        versionCode = 20
-        versionName = "0.4.7"
+        versionCode = 21
+        versionName = "0.4.8"
         buildConfigField("boolean", "DEV", "false") // Default für alle Varianten; dev überschreibt
         buildConfigField("boolean", "UPDATER", "true") // Default; das fdroid-Flavor schaltet ab
+    }
+
+    // Der von AGP eingebettete, Google-signierte Abhaengigkeits-Metadatenblock ist bei
+    // jedem Build anders und macht reproduzierbare Builds unmoeglich – deshalb raus.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     // F-Droid baut und signiert selbst und nimmt keine Apps, die sich über einen

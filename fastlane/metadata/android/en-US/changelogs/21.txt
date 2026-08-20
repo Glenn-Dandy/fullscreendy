@@ -1,0 +1,1 @@
+• A build-only change, nothing about the app itself: a metadata block embedded by Android Studio is no longer written into the APK. It differed on every build and stood in the way of reproducible builds, which prove that the published app really was built from this source.

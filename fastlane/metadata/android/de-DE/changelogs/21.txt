@@ -1,0 +1,1 @@
+• Nur eine Änderung am Build, an der App selbst ändert sich nichts: Ein von Android Studio eingebetteter Metadatenblock landet nicht mehr im APK. Er sah bei jedem Build anders aus und stand damit reproduzierbaren Builds im Weg, mit denen sich nachweisen lässt, dass die veröffentlichte App wirklich aus diesem Quellcode stammt.

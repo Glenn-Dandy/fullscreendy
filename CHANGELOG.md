@@ -3,6 +3,13 @@
 Alle nennenswerten Änderungen. Versionsschema: `MAJOR.MINOR.PATCH`,
 Vorabversionen als `-dev.N`.
 
+## 0.4.8 – 2026-08-20
+
+### Für F-Droid
+- Der von AGP eingebettete, Google-signierte Abhängigkeits-Metadatenblock wird nicht mehr
+  ins APK geschrieben (`dependenciesInfo`). Er unterscheidet sich bei jedem Build und
+  verhinderte damit reproduzierbare Builds. An der App selbst ändert sich nichts.
+
 ## 0.4.7 – 2026-08-20
 
 ### Geändert
