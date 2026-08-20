@@ -26,6 +26,25 @@ Manifest des `github`-Flavors. Bauen:
 Ohne `keystore.properties` wird gar keine Signier-Konfiguration angelegt – der Build
 läuft durch und liefert ein unsigniertes APK, genau wie auf dem Buildserver.
 
+## Vor dem Einreichen
+
+1. **Ein Tag, der alles enthaelt.** F-Droid baut genau den angegebenen Commit und liest
+   auch die Fastlane-Texte daraus – nicht aus `HEAD`. `v0.4.6` scheidet aus: dort fehlen
+   `fdroid`-Flavor, Wrapper und Metadaten. Die erste F-Droid-Version ist deshalb
+   **0.4.7 (versionCode 20)**.
+2. **Screenshots** nach `fastlane/metadata/android/*/images/phoneScreenshots/` legen,
+   siehe [`../fastlane/README.md`](../fastlane/README.md).
+3. **Vollen Commit-Hash eintragen**, keinen Tag-Namen:
+   ```bash
+   git rev-list -n1 v0.4.7
+   ```
+   Der Wert ersetzt `FULL_COMMIT_HASH_OF_TAG_v0.4.7` im Rezept. Tags koennen verschoben
+   werden, Hashes nicht – F-Droid besteht darauf.
+4. **Gegenprobe**, dass der getaggte Commit wirklich baut:
+   ```bash
+   git checkout v0.4.7 && ./gradlew assembleFdroidRelease   # ohne keystore.properties
+   ```
+
 ## Schritte zur Aufnahme
 
 1. **Store-Texte** liegen als Fastlane-Metadaten im Repo unter
