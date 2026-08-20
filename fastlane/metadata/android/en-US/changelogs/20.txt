@@ -1,0 +1,2 @@
+• PIN protection for the settings is now off by default. On a wall tablet at home the prompt gets in the way more than it helps – enable it under System if you need it. Existing installations keep their setting.
+• Groundwork for F-Droid: a separate build variant without the in-app updater, and without the permission to install apps.

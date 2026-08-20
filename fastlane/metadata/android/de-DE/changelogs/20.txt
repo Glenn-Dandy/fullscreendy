@@ -1,0 +1,2 @@
+• Der PIN-Schutz für die Einstellungen ist ab Werk aus. Auf einem Wandtablet zuhause stört die Abfrage bei jedem Handgriff mehr, als sie nützt – wer sie braucht, schaltet sie unter System ein. Bestehende Installationen behalten ihre Einstellung.
+• Vorbereitung für F-Droid: eigene Build-Variante ohne In-App-Update, dafür ohne die Berechtigung zum Installieren von Apps.

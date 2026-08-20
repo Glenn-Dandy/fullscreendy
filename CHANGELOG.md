@@ -3,6 +3,21 @@
 Alle nennenswerten Änderungen. Versionsschema: `MAJOR.MINOR.PATCH`,
 Vorabversionen als `-dev.N`.
 
+## 0.4.7 – 2026-08-20
+
+### Geändert
+- **PIN-Schutz ist standardmäßig aus.** Auf einem Wandtablet zuhause ist die Abfrage bei
+  jedem Handgriff lästiger als nützlich; wer sie braucht, schaltet sie unter *System* ein.
+  Wirkt nur bei Neuinstallationen.
+
+### Für F-Droid
+- Neue Flavor-Dimension `distribution`: **github** mit In-App-Update, **fdroid** ohne
+  Updater und ohne `REQUEST_INSTALL_PACKAGES` – F-Droid aktualisiert selbst.
+- Ohne `keystore.properties` wird keine Signier-Konfiguration mehr angelegt, der Build
+  liefert dann ein unsigniertes APK statt zu scheitern.
+- Gradle-Wrapper im Repo, Distribution über Prüfsumme festgenagelt; `vcsInfo` bleibt aus
+  dem Release-APK (reproduzierbare Builds).
+
 ## 0.4.6 – 2026-08-20
 
 ### Neu

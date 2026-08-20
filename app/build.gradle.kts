@@ -23,8 +23,8 @@ android {
         applicationId = "de.kewl.fullscreendy"
         minSdk = 28
         targetSdk = 35
-        versionCode = 19
-        versionName = "0.4.6"
+        versionCode = 20
+        versionName = "0.4.7"
         buildConfigField("boolean", "DEV", "false") // Default für alle Varianten; dev überschreibt
         buildConfigField("boolean", "UPDATER", "true") // Default; das fdroid-Flavor schaltet ab
     }
