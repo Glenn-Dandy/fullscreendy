@@ -17,7 +17,7 @@ AllowedAPKSigningKeys: a3c699c2ed75997a5dfdd7694529bfc18bc672e99ed8883a3ff51c439
 Builds:
   - versionName: 0.4.9
     versionCode: 22
-    commit: FULL_COMMIT_HASH_OF_TAG_v0.4.9
+    commit: a115375afe8e1a8324037cfc7e00a2b71d57a24f
     subdir: app
     gradle:
       - yes
