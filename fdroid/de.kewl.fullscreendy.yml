@@ -20,10 +20,10 @@ AllowedAPKSigningKeys: a3c699c2ed75997a5dfdd7694529bfc18bc672e99ed8883a3ff51c439
 
 Builds:
   # Voller 40-stelliger Hash, kein Tag-Name: ein Tag laesst sich nachtraeglich
-  # verschieben, der Build waere dann nicht mehr nachvollziehbar. Entspricht v0.4.7.
-  - versionName: 0.4.7
-    versionCode: 20
-    commit: 2806a28cfcf4dc1a202157c922094e9da9df5897
+  # verschieben, der Build waere dann nicht mehr nachvollziehbar. Entspricht v0.4.8.
+  - versionName: 0.4.8
+    versionCode: 21
+    commit: a9756d85a198d30fbe1543f54eb1b858a4ff2906
     subdir: app
     gradle:
       - fdroid
@@ -31,5 +31,5 @@ Builds:
 AutoUpdateMode: Version
 # Nur stabile Tags bauen – die Pre-Releases heissen vX.Y.Z-dev.N.
 UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+$
-CurrentVersion: 0.4.7
-CurrentVersionCode: 20
+CurrentVersion: 0.4.8
+CurrentVersionCode: 21
