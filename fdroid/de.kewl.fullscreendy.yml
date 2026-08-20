@@ -11,6 +11,13 @@ Donate: https://paypal.me/GlennDandy
 RepoType: git
 Repo: https://github.com/Glenn-Dandy/fullscreendy.git
 
+# Reproducible Builds: F-Droid vergleicht seinen Build mit diesem APK und verwendet
+# bei Uebereinstimmung unsere Signatur. Wichtig - hier haengt das APK des
+# fdroid-Flavors, nicht das der GitHub-Variante: Die github-Variante enthaelt den
+# In-App-Updater und REQUEST_INSTALL_PACKAGES und kann deshalb nie bitgleich sein.
+Binaries: https://github.com/Glenn-Dandy/fullscreendy/releases/download/v%v/FullScreendy-%v-fdroid.apk
+AllowedAPKSigningKeys: a3c699c2ed75997a5dfdd7694529bfc18bc672e99ed8883a3ff51c439a5a82d7
+
 Builds:
   # Voller 40-stelliger Hash, kein Tag-Name: ein Tag laesst sich nachtraeglich
   # verschieben, der Build waere dann nicht mehr nachvollziehbar. Entspricht v0.4.7.
