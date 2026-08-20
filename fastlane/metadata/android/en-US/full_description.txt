@@ -1,0 +1,26 @@
+FullScreendy turns an Android tablet into a fullscreen kiosk display for a smart-home dashboard — and makes the tablet itself a device in FHEM over MQTT.
+
+<b>Dashboards</b>
+Up to three dashboards, each with its own name, URL, login (HTTP Basic Auth) and certificate setting, so different servers can be mixed. One of them is the default dashboard: it is shown at start and again every time the screen wakes up. The side menu lists them all for switching, and MQTT can switch them too.
+
+<b>The tablet as an FHEM device</b>
+Battery level, charging state and temperature, screen state, brightness and volume are reported over MQTT. Incoming commands let FHEM speak text through the tablet, play stored sound files, switch the screen on and off, change brightness and volume, load another URL, reload, clear the cache or vibrate. Everything runs in a persistent foreground service that reconnects to the broker on its own.
+
+<b>Presence and screen</b>
+Camera motion detection wakes the display — the image never leaves the device, only a motion flag is published. Instead of letting Android turn the screen off, the app dims it to black with an overlay, so camera and microphone keep running and a touch wakes it instantly, without a wallpaper flash. Optionally the screen can be turned off completely after an even longer idle time.
+
+<b>Voice control in the dashboard</b>
+The page can be granted microphone access for speech recognition, and a small JavaScript bridge (window.fullscreendy.textToSpeech) provides speech output, which Android's WebView itself cannot do.
+
+<b>Built for 24/7 operation</b>
+Periodic reload against WebView memory growth, memory released under pressure, and the display is brought back automatically if Android ever kills the app.
+
+<b>Why the app asks for these permissions</b>
+• Camera — motion detection only; no image is stored or transmitted.
+• Microphone — either wake-on-sound (loudness only, no recording) or voice control in the dashboard. You choose which; both at once is impossible.
+• Device admin — needed to lock the screen (cmd/lock and "turn screen off").
+• Display over other apps — lets the service bring the dashboard back to the front after Android killed it for memory.
+• Modify system settings — real hardware brightness over the full range.
+• All files access — reads sound files from the FullScreendy folder.
+
+Free software, MIT licensed. Interface in English and German.

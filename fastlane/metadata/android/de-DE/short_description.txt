@@ -1,0 +1,1 @@
+Vollbild-Kiosk-Browser für Wandtablets, per MQTT in FHEM eingebunden

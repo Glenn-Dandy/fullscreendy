@@ -1,0 +1,1 @@
+Fullscreen kiosk browser for wall tablets, tied into FHEM over MQTT

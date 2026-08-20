@@ -1,0 +1,4 @@
+• Up to three dashboards, each with its own name, login and certificate setting. The default dashboard returns after every wake-up, the side menu switches between them.
+• Fixed: pull-to-refresh already triggered while scrolling up. Now only a pull that starts at the top of the page reloads.
+• Voice control in the dashboard: microphone access for the page and a JavaScript bridge for speech output.
+• PIN protection can be switched off, clearer menus, new About screen.

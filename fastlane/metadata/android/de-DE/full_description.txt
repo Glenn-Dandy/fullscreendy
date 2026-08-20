@@ -1,0 +1,26 @@
+FullScreendy macht aus einem Android-Tablet ein Vollbild-Kioskdisplay für das Smart-Home-Dashboard — und bindet das Tablet zugleich als Gerät in FHEM ein, über MQTT.
+
+<b>Dashboards</b>
+Bis zu drei Dashboards, jedes mit eigenem Namen, eigener URL, eigenem Login (HTTP Basic Auth) und eigener Zertifikats-Einstellung, sodass sich auch verschiedene Server mischen lassen. Eines davon ist das Standard-Dashboard: Es erscheint beim Start und nach jedem Aufwecken des Bildschirms wieder. Das Seitenmenü listet alle zum Umschalten auf, per MQTT geht es ebenfalls.
+
+<b>Das Tablet als FHEM-Gerät</b>
+Ladestand, Ladezustand und Akkutemperatur, Bildschirmzustand, Helligkeit und Lautstärke werden per MQTT gemeldet. Eingehende Befehle lassen FHEM Text über das Tablet sprechen, gespeicherte Sounddateien abspielen, den Bildschirm an- und ausschalten, Helligkeit und Lautstärke ändern, eine andere URL laden, neu laden, den Cache leeren oder vibrieren. Alles läuft in einem dauerhaften Foreground-Service, der sich selbst wieder mit dem Broker verbindet.
+
+<b>Präsenz und Bildschirm</b>
+Die Kamera-Bewegungserkennung weckt das Display — kein Bild verlässt das Gerät, veröffentlicht wird nur die Information, dass Bewegung war. Statt Android den Bildschirm abschalten zu lassen, dunkelt die App per Overlay schwarz ab: Kamera und Mikrofon laufen weiter, eine Berührung weckt sofort, und es blitzt kein Hintergrundbild auf. Nach noch längerer Inaktivität kann der Bildschirm optional ganz ausgeschaltet werden.
+
+<b>Sprachsteuerung im Dashboard</b>
+Der geladenen Seite lässt sich das Mikrofon für Spracherkennung freigeben, und eine kleine JavaScript-Brücke (window.fullscreendy.textToSpeech) liefert die Sprachausgabe, die die Android-WebView selbst nicht mitbringt.
+
+<b>Für den Dauerbetrieb gebaut</b>
+Periodischer Reload gegen wachsenden WebView-Speicher, Speicherfreigabe bei Druck, und die Anzeige kommt automatisch zurück, falls Android die App doch einmal beendet.
+
+<b>Warum die App diese Berechtigungen möchte</b>
+• Kamera — ausschließlich für die Bewegungserkennung; es wird kein Bild gespeichert oder übertragen.
+• Mikrofon — entweder Wecken bei Ton (nur Lautstärke, keine Aufnahme) oder Sprachsteuerung im Dashboard. Du wählst, wofür; beides gleichzeitig ist nicht möglich.
+• Geräteadmin — nötig, um den Bildschirm zu sperren (cmd/lock und „Bildschirm ausschalten").
+• Über anderen Apps anzeigen — damit der Dienst das Dashboard zurückholen kann, wenn Android die App wegen Speichermangels beendet hat.
+• Systemeinstellungen ändern — echte Hardware-Helligkeit über den vollen Bereich.
+• Zugriff auf alle Dateien — liest die Sounddateien aus dem FullScreendy-Ordner.
+
+Freie Software unter MIT-Lizenz. Oberfläche auf Deutsch und Englisch.

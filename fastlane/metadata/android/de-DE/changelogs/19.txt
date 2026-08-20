@@ -1,0 +1,4 @@
+• Bis zu drei Dashboards, jedes mit eigenem Namen, Login und Zertifikat. Das Standard-Dashboard erscheint nach jedem Aufwecken wieder.
+• Behoben: Zum Aktualisieren nach unten ziehen löste schon beim Hochscrollen aus. Jetzt lädt nur ein Zug neu, der oben beginnt.
+• Sprachsteuerung im Dashboard: Mikrofon-Freigabe für die Seite und eine JavaScript-Brücke für die Sprachausgabe.
+• PIN-Schutz abschaltbar, übersichtlichere Menüs, neue Über-Seite.
