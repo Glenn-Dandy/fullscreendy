@@ -218,20 +218,9 @@ class Strings(private val lang: AppLang) {
     val updateChecking get() = t("Checking for updates…", "Suche nach Updates…")
     val updateUpToDate get() = t("You have the latest version", "Du hast die neueste Version")
     val updateAvailable get() = t("Update available:", "Update verfügbar:")
-    val updateInstall get() = t("Download & install", "Herunterladen & installieren")
-    val updateDownloading get() = t("Downloading…", "Wird heruntergeladen…")
     val updateCheckAgain get() = t("Check again", "Erneut prüfen")
     val updateOpenPage get() = t("Open release page", "Zur Release-Seite")
-    val updateViaFdroid get() = t(
-        "Installed via F-Droid? Then update there – this build has no installer.",
-        "Über F-Droid installiert? Dann dort aktualisieren – dieser Build bringt keinen Installer mit."
-    )
     val updateError get() = t("Update check failed", "Update-Prüfung fehlgeschlagen")
-    val updateDownloadFailed get() = t("Download failed", "Download fehlgeschlagen")
-    val updateAllowInstall get() = t(
-        "Please allow installing unknown apps, then tap again.",
-        "Bitte Installation unbekannter Apps erlauben, dann erneut tippen."
-    )
     val appVersionLabel get() = t("App version", "App-Version")
     val androidVersionLabel get() = t("Android version", "Android-Version")
     val ipAddressLabel get() = t("IP address", "IP-Adresse")

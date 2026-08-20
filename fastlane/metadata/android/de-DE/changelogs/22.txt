@@ -1,0 +1,1 @@
+• Die App lädt Updates nicht mehr selbst herunter. Die Über-Seite sagt weiterhin Bescheid, wenn es eine neue Version gibt, und verlinkt sie – installiert wird über den Browser oder F-Droid. Dafür braucht die App die Berechtigung „Unbekannte Apps installieren" nicht mehr.

@@ -23,10 +23,9 @@ android {
         applicationId = "de.kewl.fullscreendy"
         minSdk = 28
         targetSdk = 35
-        versionCode = 21
-        versionName = "0.4.8"
+        versionCode = 22
+        versionName = "0.4.9"
         buildConfigField("boolean", "DEV", "false") // Default für alle Varianten; dev überschreibt
-        buildConfigField("boolean", "UPDATER", "true") // Default; das fdroid-Flavor schaltet ab
     }
 
     // Der von AGP eingebettete, Google-signierte Abhaengigkeits-Metadatenblock ist bei
@@ -36,21 +35,6 @@ android {
         includeInBundle = false
     }
 
-    // F-Droid baut und signiert selbst und nimmt keine Apps, die sich über einen
-    // eigenen APK-Download aktualisieren. Deshalb zwei Varianten: "github" mit
-    // In-App-Update, "fdroid" ohne Updater und ohne REQUEST_INSTALL_PACKAGES
-    // (die Berechtigung steht in src/github/AndroidManifest.xml).
-    flavorDimensions += "distribution"
-    productFlavors {
-        create("github") {
-            dimension = "distribution"
-            buildConfigField("boolean", "UPDATER", "true")
-        }
-        create("fdroid") {
-            dimension = "distribution"
-            buildConfigField("boolean", "UPDATER", "false")
-        }
-    }
 
     // Ohne keystore.properties (z. B. auf dem F-Droid-Buildserver) gibt es gar keine
     // Signier-Konfiguration – der Build läuft dann durch und liefert ein unsigniertes APK.

@@ -34,16 +34,15 @@ Requires **Android Studio** (Ladybug or newer) with Android SDK 35.
    *Build → Build Bundle(s)/APK(s) → Build APK(s)*.
 
 ```bash
-./gradlew assembleGithubDebug      # app/build/outputs/apk/github/debug/
-./gradlew assembleGithubRelease    # signed release (needs keystore.properties)
-./gradlew assembleGithubDev -PdevNum=1   # pre-release build, version 0.x.y-dev.1
-./gradlew assembleFdroidRelease    # F-Droid variant, builds unsigned without a keystore
+./gradlew assembleDebug                  # app/build/outputs/apk/debug/
+./gradlew assembleRelease                # signed release (needs keystore.properties)
+./gradlew assembleDev -PdevNum=1         # pre-release build, version 0.x.y-dev.1
 ```
 
-There are two flavors on the `distribution` dimension: **github** ships the in-app
-updater (check, download, install), **fdroid** does not – it only checks and links to
-the release page, and `REQUEST_INSTALL_PACKAGES` is absent from its manifest, because
-F-Droid updates apps itself. Details in [`fdroid/README.md`](fdroid/README.md).
+One build serves every channel – the same APK that lands in the GitHub release is what
+F-Droid rebuilds and verifies. The app never downloads or installs APKs itself, so it
+does not ask for `REQUEST_INSTALL_PACKAGES`; *About* only checks for a newer version and
+links to the release page. Details in [`fdroid/README.md`](fdroid/README.md).
 
 Without `keystore.properties` no signing config is created at all, so the build still
 succeeds and produces an unsigned APK.

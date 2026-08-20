@@ -34,16 +34,15 @@ Voraussetzung: **Android Studio** (Ladybug o. neuer) mit Android SDK 35.
    *Build → Build Bundle(s)/APK(s) → Build APK(s)*.
 
 ```bash
-./gradlew assembleGithubDebug      # app/build/outputs/apk/github/debug/
-./gradlew assembleGithubRelease    # signiertes Release (braucht keystore.properties)
-./gradlew assembleGithubDev -PdevNum=1   # Vorabversion 0.x.y-dev.1
-./gradlew assembleFdroidRelease    # F-Droid-Variante, baut ohne Keystore unsigniert
+./gradlew assembleDebug                  # app/build/outputs/apk/debug/
+./gradlew assembleRelease                # signiertes Release (braucht keystore.properties)
+./gradlew assembleDev -PdevNum=1         # Vorabversion 0.x.y-dev.1
 ```
 
-Es gibt zwei Flavors auf der Dimension `distribution`: **github** bringt das
-In-App-Update mit (Prüfen, Herunterladen, Installieren), **fdroid** nicht – dort wird
-nur geprüft und auf die Release-Seite verlinkt, und `REQUEST_INSTALL_PACKAGES` fehlt
-im Manifest, weil F-Droid selbst aktualisiert. Näheres in
+Ein Build für alle Bezugswege – dasselbe APK, das im GitHub-Release liegt, baut F-Droid
+nach und verifiziert es. Die App lädt und installiert selbst keine APKs und fragt
+deshalb auch nicht nach `REQUEST_INSTALL_PACKAGES`; die *Über*-Seite prüft nur auf eine
+neuere Version und verlinkt die Release-Seite. Näheres in
 [`fdroid/README.md`](fdroid/README.md).
 
 Ohne `keystore.properties` wird gar keine Signier-Konfiguration angelegt – der Build
@@ -378,8 +377,8 @@ Apps nicht ausblenden; er verschwindet nur, wenn die Bewegungserkennung aus ist.
 ## Updates
 Die App prüft beim Öffnen von *Über* die GitHub-Releases: stabile Builds suchen das
 neueste stabile Release, Dev-Builds auch Pre-Releases. Gibt es eine neuere Version,
-kannst du sie direkt aus der „Über"-Seite **herunterladen und installieren** – mit
-Fortschrittsanzeige in Prozent (einmalig „Unbekannte Apps installieren" erlauben).
+kannst du die **Release-Seite direkt aus der „Über"-Seite öffnen** und das APK selbst
+installieren – oder einfach über F-Droid aktualisieren.
 Die „Über"-Seite zeigt außerdem App-/Android-Version, IP-Adresse und Geräte-ID und
 verlinkt **Stern auf GitHub geben**, den **Quellcode** und **Projekt unterstützen**.
 

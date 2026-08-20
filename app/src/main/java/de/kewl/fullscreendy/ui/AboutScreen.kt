@@ -2,7 +2,6 @@ package de.kewl.fullscreendy.ui
 
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,13 +20,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Dashboard
-import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.SystemUpdate
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -53,7 +51,6 @@ import de.kewl.fullscreendy.i18n.LocalStrings
 import de.kewl.fullscreendy.update.Repo
 import de.kewl.fullscreendy.update.UpdateChecker
 import de.kewl.fullscreendy.update.UpdateInfo
-import de.kewl.fullscreendy.update.Updater
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -63,8 +60,6 @@ private sealed interface UpdateUi {
     data object Checking : UpdateUi
     data object UpToDate : UpdateUi
     data class Available(val info: UpdateInfo) : UpdateUi
-    /** [percent] < 0: Server liefert keine Größe → unbestimmter Balken. */
-    data class Downloading(val info: UpdateInfo, val percent: Int) : UpdateUi
     data object Failed : UpdateUi
 }
 
@@ -97,32 +92,6 @@ fun AboutScreen(settings: Settings, onBack: () -> Unit) {
     // Beim Öffnen einmal automatisch prüfen.
     LaunchedEffect(Unit) { check() }
 
-    fun startDownload(info: UpdateInfo) {
-        if (!Updater.canInstall(context)) {
-            runCatching {
-                context.startActivity(
-                    Updater.unknownSourcesIntent(context).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
-            }
-            Toast.makeText(context, s.updateAllowInstall, Toast.LENGTH_LONG).show()
-            return
-        }
-        scope.launch {
-            state = UpdateUi.Downloading(info, 0)
-            val file = withContext(Dispatchers.IO) {
-                Updater.download(context, info.apkUrl) { percent ->
-                    state = UpdateUi.Downloading(info, percent)
-                }
-            }
-            if (file != null) {
-                state = UpdateUi.Available(info)
-                Updater.install(context, file)
-            } else {
-                state = UpdateUi.Failed
-                Toast.makeText(context, s.updateDownloadFailed, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -158,7 +127,7 @@ fun AboutScreen(settings: Settings, onBack: () -> Unit) {
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             RowDivider()
-                            ActionRow(Icons.Filled.SystemUpdate, s.updateCheckAgain, showArrow = false) {
+                            ActionRow(Icons.Filled.Refresh, s.updateCheckAgain, showArrow = false) {
                                 scope.launch { check() }
                             }
                         }
@@ -170,7 +139,7 @@ fun AboutScreen(settings: Settings, onBack: () -> Unit) {
                                 color = MaterialTheme.colorScheme.error
                             )
                             RowDivider()
-                            ActionRow(Icons.Filled.SystemUpdate, s.updateCheckAgain, showArrow = false) {
+                            ActionRow(Icons.Filled.Refresh, s.updateCheckAgain, showArrow = false) {
                                 scope.launch { check() }
                             }
                         }
@@ -183,35 +152,14 @@ fun AboutScreen(settings: Settings, onBack: () -> Unit) {
                                 fontWeight = FontWeight.SemiBold
                             )
                             RowDivider()
-                            // Der fdroid-Flavor bringt keinen Installer mit (F-Droid
-                            // aktualisiert selbst) – dort nur zur Release-Seite verlinken.
-                            if (BuildConfig.UPDATER) {
-                                ActionRow(Icons.Filled.Download, s.updateInstall, showArrow = false) {
-                                    startDownload(st.info)
-                                }
-                            } else {
-                                Text(s.updateViaFdroid, style = MaterialTheme.typography.bodySmall)
-                                ActionRow(Icons.Filled.Download, s.updateOpenPage) {
-                                    openUrl("${Repo.URL}/releases")
-                                }
+                            // Bewusst kein Download in der App: Das Installieren fremder
+                            // APKs braucht REQUEST_INSTALL_PACKAGES, und F-Droid nimmt
+                            // keine Apps, die sich selbst aktualisieren.
+                            ActionRow(Icons.AutoMirrored.Filled.OpenInNew, s.updateOpenPage) {
+                                openUrl("${Repo.URL}/releases")
                             }
                         }
 
-                        is UpdateUi.Downloading -> {
-                            Text(
-                                if (st.percent >= 0) "${s.updateDownloading} ${st.percent} %"
-                                else s.updateDownloading,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            if (st.percent >= 0) {
-                                LinearProgressIndicator(
-                                    progress = { st.percent / 100f },
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            } else {
-                                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                            }
-                        }
                     }
                 }
 

@@ -4,45 +4,38 @@ FullScreendy ist FOSS (MIT) und nutzt ausschließlich freie Abhängigkeiten:
 AndroidX/Compose und CameraX (Apache 2.0), DataStore, Eclipse Paho MQTT (EPL/EDL).
 Kein Google Play Services, kein Firebase, keine Tracker.
 
-## Das `fdroid`-Flavor
+## Ein Build für alles
 
-F-Droid baut und signiert selbst und nimmt keine Apps, die sich über einen eigenen
-APK-Download aktualisieren. Deshalb gibt es zwei Varianten (Dimension `distribution`):
-
-| Flavor | In-App-Update | `REQUEST_INSTALL_PACKAGES` |
-|---|---|---|
-| `github` | Prüfen, Herunterladen, Installieren | ja (`src/github/AndroidManifest.xml`) |
-| `fdroid` | nur Prüfen + Link zur Release-Seite | **nein** |
-
-Gesteuert über `BuildConfig.UPDATER`; die Berechtigung liegt ausschließlich im
-Manifest des `github`-Flavors. Bauen:
+Die App lädt und installiert selbst keine APKs – die *Über*-Seite prüft nur auf eine
+neuere Version und verlinkt die Release-Seite. Damit fällt `REQUEST_INSTALL_PACKAGES`
+weg, und es gibt genau einen Build für GitHub wie F-Droid:
 
 ```bash
-./gradlew assembleFdroidRelease    # das baut F-Droid (unsigniert, ohne keystore.properties)
-./gradlew assembleGithubRelease    # das APK für die GitHub-Releases
-./gradlew assembleGithubDev -PdevNum=1
+./gradlew assembleRelease   # ohne keystore.properties: unsigniert, genau wie beim Buildserver
 ```
 
-Ohne `keystore.properties` wird gar keine Signier-Konfiguration angelegt – der Build
-läuft durch und liefert ein unsigniertes APK, genau wie auf dem Buildserver.
+Reproducible Builds sind vorbereitet: `dependenciesInfo` und `vcsInfo` sind abgeschaltet
+(die beiden bekannten Störenfriede), zwei aufeinanderfolgende `clean`-Builds liefern
+byte-identische APKs. `Binaries:` im Rezept zeigt auf das APK des GitHub-Releases,
+`AllowedAPKSigningKeys:` auf unser Zertifikat.
 
 ## Vor dem Einreichen
 
 1. **Ein Tag, der alles enthaelt.** F-Droid baut genau den angegebenen Commit und liest
-   auch die Fastlane-Texte daraus – nicht aus `HEAD`. `v0.4.6` scheidet aus: dort fehlen
-   `fdroid`-Flavor, Wrapper und Metadaten. Die erste F-Droid-Version ist deshalb
-   **0.4.7 (versionCode 20)**.
+   auch die Fastlane-Texte daraus – nicht aus `HEAD`. `v0.4.6` und `v0.4.7` scheiden aus: dort fehlen
+   Wrapper, Metadaten und den abgeschalteten `dependenciesInfo`. Die erste
+   F-Droid-Version ist deshalb **0.4.9 (versionCode 22)**.
 2. **Screenshots** nach `fastlane/metadata/android/*/images/phoneScreenshots/` legen,
    siehe [`../fastlane/README.md`](../fastlane/README.md).
 3. **Vollen Commit-Hash eintragen**, keinen Tag-Namen:
    ```bash
-   git rev-list -n1 v0.4.7
+   git rev-list -n1 v0.4.9
    ```
-   Der Wert ersetzt `FULL_COMMIT_HASH_OF_TAG_v0.4.7` im Rezept. Tags koennen verschoben
+   Der Wert ersetzt `FULL_COMMIT_HASH_OF_TAG_v0.4.9` im Rezept. Tags koennen verschoben
    werden, Hashes nicht – F-Droid besteht darauf.
 4. **Gegenprobe**, dass der getaggte Commit wirklich baut:
    ```bash
-   git checkout v0.4.7 && ./gradlew assembleFdroidRelease   # ohne keystore.properties
+   git checkout v0.4.9 && ./gradlew assembleRelease   # ohne keystore.properties
    ```
 
 ## Schritte zur Aufnahme

@@ -3,6 +3,15 @@
 Alle nennenswerten Änderungen. Versionsschema: `MAJOR.MINOR.PATCH`,
 Vorabversionen als `-dev.N`.
 
+## 0.4.9 – 2026-08-20
+
+### Geändert
+- **Kein In-App-Download mehr.** Die Über-Seite prüft weiterhin auf neue Versionen und
+  verlinkt die Release-Seite; heruntergeladen und installiert wird im Browser bzw. über
+  F-Droid. Damit entfällt die Berechtigung *Unbekannte Apps installieren*
+  (`REQUEST_INSTALL_PACKAGES`) vollständig, und es gibt wieder **einen** Build für alle
+  Bezugsquellen statt zweier Varianten.
+
 ## 0.4.8 – 2026-08-20
 
 ### Für F-Droid

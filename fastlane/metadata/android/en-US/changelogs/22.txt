@@ -1,0 +1,1 @@
+• The app no longer downloads updates itself. The About screen still tells you when a new version is out and links to it – installing happens via your browser or F-Droid. In return, the app no longer needs the "install unknown apps" permission.
