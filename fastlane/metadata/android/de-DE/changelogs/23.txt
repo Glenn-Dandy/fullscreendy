@@ -1,0 +1,2 @@
+• Die App braucht keine Speicher-Berechtigung mehr. Den Ordner mit den Tondateien wählst du unter Einstellungen → Töne über die Android-Ordnerauswahl aus; die App bekommt genau diesen Ordner und sonst nichts. Ohne Auswahl nutzt sie ihren eigenen Ordner.
+• Neuer Hinweis am URL-Feld: Die Dashboard-URL wird per MQTT veröffentlicht – Zugangsdaten gehören in die Login-Felder, nicht in die URL.

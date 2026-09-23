@@ -1,0 +1,2 @@
+• The app no longer needs any storage permission. Pick the folder holding your sound files under Settings → Sounds using Android's folder picker – the app is granted exactly that folder and nothing else. Without a selection it uses its own folder.
+• New hint at the URL field: the dashboard URL is published over MQTT, so credentials belong in the login fields rather than in the URL.

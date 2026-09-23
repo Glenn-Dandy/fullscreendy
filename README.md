@@ -129,10 +129,11 @@ Base: `<base-topic>/<device-id>`, e.g. `fhem/tablet/tablet1`.
 | `cmd/unlock` | (any) | wakes & dismisses the (insecure) lock screen |
 | `cmd/vibrate` | duration in ms (empty = 200) | vibration feedback, max 5000 ms |
 
-**Sounds:** copy files into the public folder **`/sdcard/FullScreendy/`** (accessible
-via file manager/USB). Grant **Settings → System → “Allow file access”** once. Then
-play via `cmd/mediaplay ding.mp3`. `http…` URLs are streamed, paths with `/` are
-treated as absolute files.
+**Sounds:** under *Settings → Sounds* pick the folder holding your sound files. The app
+is granted **exactly that folder** through Android's folder picker and needs no storage
+permission at all. Then play via `cmd/mediaplay ding.mp3`; subfolders work with `/`.
+`http…` URLs are streamed. Without a folder selection the app uses its own directory
+(`Android/data/de.kewl.fullscreendy/files/sounds`).
 
 ---
 
@@ -251,8 +252,6 @@ Under *Settings → System → Permissions* (grant once; granted permissions sho
 - **Enable device admin** → needed for `cmd/lock` and “turn screen off”.
 - **Allow brightness control** (WRITE_SETTINGS) → real hardware brightness over the
   full range (fixes “only up to ~60 %”).
-- **Allow file access** (all-files access) → so the app can read sound files from
-  `/sdcard/FullScreendy/`.
 - **Disable battery optimization** → so Android does not kill the app in the background.
 - **Display over other apps** → lets the service bring the dashboard back to the front
   automatically if Android ever kills the app for memory (see *24/7 operation*).

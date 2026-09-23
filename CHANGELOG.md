@@ -3,6 +3,17 @@
 Alle nennenswerten Änderungen. Versionsschema: `MAJOR.MINOR.PATCH`,
 Vorabversionen als `-dev.N`.
 
+## 0.4.10 – 2026-09-24
+
+### Geändert
+- **Keine Speicher-Berechtigung mehr.** Der Sound-Ordner wird unter *Einstellungen → Töne*
+  über die Android-Ordnerauswahl (Storage Access Framework) freigegeben; die App erhält
+  genau diesen Ordner. `MANAGE_EXTERNAL_STORAGE` und `READ_EXTERNAL_STORAGE` sind
+  entfallen. Ohne Auswahl wird der app-eigene Ordner genutzt.
+  (Auf Wunsch der F-Droid-Review, danke @linsui und @gitubpatrice)
+- Hinweis am URL-Feld: Die aktuelle Dashboard-URL wird als MQTT-Reading veröffentlicht –
+  Zugangsdaten gehören in die Login-Felder, nicht in die URL.
+
 ## 0.4.9 – 2026-08-20
 
 ### Geändert

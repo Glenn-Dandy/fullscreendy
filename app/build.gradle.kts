@@ -23,8 +23,8 @@ android {
         applicationId = "de.kewl.fullscreendy"
         minSdk = 28
         targetSdk = 35
-        versionCode = 22
-        versionName = "0.4.9"
+        versionCode = 23
+        versionName = "0.4.10"
         buildConfigField("boolean", "DEV", "false") // Default für alle Varianten; dev überschreibt
     }
 
@@ -110,6 +110,7 @@ dependencies {
     implementation(libs.paho.mqtt)
     implementation(libs.camerax.camera2)
     implementation(libs.camerax.lifecycle)
+    implementation(libs.androidx.documentfile)
     implementation(libs.androidx.swiperefreshlayout)
     debugImplementation(libs.androidx.ui.tooling)
 }

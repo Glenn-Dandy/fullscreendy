@@ -5,8 +5,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.net.Uri
 import android.content.pm.PackageManager
-import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -157,7 +157,7 @@ fun SettingsScreen(
                     Section.Connection -> ConnectionSection(draft, s) { draft = it }
                     Section.Display -> DisplaySection(draft, s) { draft = it }
                     Section.Behavior -> BehaviorSection(draft, s) { draft = it }
-                    Section.Sounds -> SoundsSection(s)
+                    Section.Sounds -> SoundsSection(draft, s) { draft = it }
                     Section.System -> SystemSection(draft, s) { draft = it }
                 }
                 Spacer(Modifier.height(24.dp))
@@ -240,6 +240,7 @@ private fun DashboardsSection(
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
+        Text(s.dashboardUrlHint, style = MaterialTheme.typography.bodySmall)
     }
 
     SectionCard(s.dashboardLogin) {
@@ -575,16 +576,53 @@ private fun RadioRow(label: String, hint: String?, selected: Boolean, onClick: (
 // ---- Töne -----------------------------------------------------------------------
 
 @Composable
-private fun SoundsSection(s: Strings) {
-    val soundsPath = remember {
-        @Suppress("DEPRECATION")
-        File(Environment.getExternalStorageDirectory(), "FullScreendy").absolutePath
+private fun SoundsSection(draft: Settings, s: Strings, onChange: (Settings) -> Unit) {
+    val context = LocalContext.current
+    // Ordnerauswahl über das Storage Access Framework: Die App erhält Zugriff auf genau
+    // diesen Ordner – keine Speicher-Berechtigung, kein Zugriff auf alles andere.
+    val picker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        if (uri != null) {
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(
+                    uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            }
+            onChange(draft.copy(soundsTreeUri = uri.toString()))
+        }
     }
+    val fallback = remember {
+        (context.getExternalFilesDir("sounds") ?: File(context.filesDir, "sounds")).absolutePath
+    }
+
     SectionCard {
         Text(s.soundsHint, style = MaterialTheme.typography.bodyMedium)
-        Text(soundsPath, style = MaterialTheme.typography.bodySmall)
+        if (draft.soundsTreeUri.isNotBlank()) {
+            InfoRow(s.soundsFolder, folderLabel(draft.soundsTreeUri))
+        } else {
+            Text(s.soundsFallback, style = MaterialTheme.typography.bodySmall)
+            Text(fallback, style = MaterialTheme.typography.bodySmall)
+        }
+        OutlinedButton(
+            onClick = { runCatching { picker.launch(null) } },
+            modifier = Modifier.fillMaxWidth()
+        ) { Text(s.soundsPick) }
+        if (draft.soundsTreeUri.isNotBlank()) {
+            ActionRow(
+                Icons.Filled.Delete,
+                s.soundsClear,
+                tint = MaterialTheme.colorScheme.error,
+                showArrow = false
+            ) { onChange(draft.copy(soundsTreeUri = "")) }
+        }
     }
 }
+
+/** Aus einer Tree-URI den lesbaren Ordnernamen ziehen, z. B. "primary:Toene" → "Toene". */
+private fun folderLabel(treeUri: String): String = runCatching {
+    Uri.parse(treeUri).lastPathSegment?.substringAfterLast(':')?.ifBlank { null } ?: treeUri
+}.getOrDefault(treeUri)
 
 // ---- System ---------------------------------------------------------------------
 
@@ -637,7 +675,6 @@ private fun PermissionsCard(s: Strings) {
     // Status aller Berechtigungen – wird bei Rückkehr in die App aktualisiert.
     var adminActive by remember { mutableStateOf(SystemController.isAdminActive(context)) }
     var brightnessOk by remember { mutableStateOf(SystemController.canWriteSettings(context)) }
-    var fileOk by remember { mutableStateOf(SystemController.hasAllFilesAccess(context)) }
     var cameraOk by remember { mutableStateOf(hasPerm(Manifest.permission.CAMERA)) }
     var micOk by remember { mutableStateOf(hasPerm(Manifest.permission.RECORD_AUDIO)) }
     var batteryOk by remember { mutableStateOf(SystemController.isIgnoringBatteryOptimizations(context)) }
@@ -649,7 +686,6 @@ private fun PermissionsCard(s: Strings) {
             if (event == Lifecycle.Event.ON_RESUME) {
                 adminActive = SystemController.isAdminActive(context)
                 brightnessOk = SystemController.canWriteSettings(context)
-                fileOk = SystemController.hasAllFilesAccess(context)
                 cameraOk = hasPerm(Manifest.permission.CAMERA)
                 micOk = hasPerm(Manifest.permission.RECORD_AUDIO)
                 batteryOk = SystemController.isIgnoringBatteryOptimizations(context)
@@ -666,10 +702,6 @@ private fun PermissionsCard(s: Strings) {
     val micLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted -> micOk = granted }
-    // Android < 11: Sound-Ordner braucht die klassische Storage-Laufzeitberechtigung.
-    val storageLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted -> fileOk = granted }
 
     // WICHTIG: aus der Activity OHNE FLAG_ACTIVITY_NEW_TASK starten – sonst bricht
     // der Geräteadmin-Dialog (der ein Ergebnis erwartet) sofort ab und kehrt zurück.
@@ -714,20 +746,6 @@ private fun PermissionsCard(s: Strings) {
             onClick = { open(SystemController.writeSettingsIntent(context)) },
             modifier = Modifier.fillMaxWidth()
         ) { Text(if (brightnessOk) s.brightnessActive else s.allowBrightness) }
-        OutlinedButton(
-            onClick = {
-                // Ab Android 11: „Alle Dateien"-Systemseite. Darunter (Android 9/10):
-                // klassische Laufzeit-Abfrage, sonst App-Info zum Prüfen/Entziehen.
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                    open(SystemController.allFilesAccessIntent(context))
-                } else if (!fileOk) {
-                    storageLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                } else {
-                    open(SystemController.appDetailsIntent(context))
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) { Text(if (fileOk) s.fileAccessActive else s.allowFileAccess) }
         OutlinedButton(
             onClick = { open(SystemController.batteryOptIntent(context)) },
             modifier = Modifier.fillMaxWidth()

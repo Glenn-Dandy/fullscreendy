@@ -44,6 +44,8 @@ data class Settings(
     val ignoreSystemFontScale: Boolean = true,
     val ttsEnabled: Boolean = true,
     val mediaEnabled: Boolean = true,
+    /** Vom Nutzer per Ordnerauswahl (SAF) freigegebener Sound-Ordner; leer = App-Ordner. */
+    val soundsTreeUri: String = "",
     val zoomEnabled: Boolean = false,
     val pullToRefresh: Boolean = true,
     /** Dashboard-Seiten dürfen das Mikrofon nutzen (getUserMedia); aus = Anfragen werden abgelehnt. */

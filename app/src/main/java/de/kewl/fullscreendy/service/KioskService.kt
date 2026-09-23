@@ -153,6 +153,7 @@ class KioskService : LifecycleService() {
     // ---- Konfiguration anwenden -------------------------------------------------
 
     private fun applySettings(s: Settings) {
+        media.soundsTreeUri = s.soundsTreeUri
         val url = s.dashboardAt(activeDashboard).url
         if (currentUrl != url) {
             currentUrl = url

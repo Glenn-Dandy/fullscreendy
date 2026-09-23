@@ -67,6 +67,10 @@ class Strings(private val lang: AppLang) {
     val addDashboard get() = t("Add", "Hinzufügen")
     val dashboardName get() = t("Display name (menu)", "Anzeigename (Menü)")
     val dashboardUrl get() = t("Dashboard URL (http/https)", "Dashboard-URL (http/https)")
+    val dashboardUrlHint get() = t(
+        "The current URL is published as a retained MQTT reading. Do not put credentials in it – use the login fields below.",
+        "Die aktuelle URL wird als MQTT-Reading veröffentlicht. Keine Zugangsdaten hineinschreiben – dafür sind die Login-Felder unten da."
+    )
     val setAsDefault get() = t("Use as default dashboard", "Als Standard-Dashboard verwenden")
     val defaultDashboardHint get() = t(
         "The default dashboard is always shown again when the screen wakes up.",
@@ -172,10 +176,19 @@ class Strings(private val lang: AppLang) {
 
     // Töne
     val soundsHint get() = t(
-        "Copy sound files into this folder (grant 'Allow file access' under System first), " +
-            "then play via MQTT (e.g. cmd/mediaplay = ding.mp3):",
-        "Tondateien in diesen Ordner kopieren (vorher unter System 'Dateizugriff erlauben'), " +
-            "dann per MQTT abspielen (z. B. cmd/mediaplay = ding.mp3):"
+        "Choose a folder with your sound files – the app is granted exactly that folder and " +
+            "needs no storage permission. Play via MQTT, e.g. cmd/mediaplay = ding.mp3 " +
+            "(subfolders with \"/\").",
+        "Wähle einen Ordner mit deinen Tondateien – die App bekommt genau diesen Ordner und " +
+            "braucht keine Speicher-Berechtigung. Abgespielt wird per MQTT, z. B. " +
+            "cmd/mediaplay = ding.mp3 (Unterordner mit \"/\")."
+    )
+    val soundsFolder get() = t("Selected folder", "Gewählter Ordner")
+    val soundsPick get() = t("Choose sound folder", "Sound-Ordner wählen")
+    val soundsClear get() = t("Clear folder selection", "Ordnerauswahl aufheben")
+    val soundsFallback get() = t(
+        "Without a selection the app uses its own folder:",
+        "Ohne Auswahl nutzt die App ihren eigenen Ordner:"
     )
 
     // System
@@ -194,8 +207,6 @@ class Strings(private val lang: AppLang) {
     val adminActive get() = t("Device admin active ✓", "Geräteadmin aktiv ✓")
     val allowBrightness get() = t("Allow brightness control", "Helligkeitssteuerung erlauben")
     val brightnessActive get() = t("Brightness control active ✓", "Helligkeitssteuerung aktiv ✓")
-    val allowFileAccess get() = t("Allow file access (sounds)", "Dateizugriff erlauben (Töne)")
-    val fileAccessActive get() = t("File access active ✓", "Dateizugriff aktiv ✓")
     val allowCamera get() = t("Allow camera (motion)", "Kamera erlauben (Bewegung)")
     val cameraActive get() = t("Camera allowed ✓", "Kamera erlaubt ✓")
     val allowMic get() = t("Allow microphone (sound)", "Mikrofon erlauben (Ton)")

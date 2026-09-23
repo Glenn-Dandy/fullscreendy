@@ -111,29 +111,6 @@ object SystemController {
             Uri.parse("package:${ctx.packageName}")
         )
 
-    /** true, wenn die App den Sound-Ordner lesen darf. Ab Android 11 „Alle Dateien",
-     *  darunter (z. B. Android 9/10) die klassische READ_EXTERNAL_STORAGE-Laufzeitberechtigung. */
-    fun hasAllFilesAccess(ctx: Context): Boolean =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Environment.isExternalStorageManager()
-        } else {
-            androidx.core.content.ContextCompat.checkSelfPermission(
-                ctx, android.Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-        }
-
-    fun allFilesAccessIntent(ctx: Context): Intent =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Intent(
-                Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
-                Uri.parse("package:${ctx.packageName}")
-            )
-        } else {
-            Intent(
-                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                Uri.parse("package:${ctx.packageName}")
-            )
-        }
 
     /** Darf die App über anderen Apps zeichnen? (nötig, um die UI nach Kill neu zu holen) */
     fun canDrawOverlays(ctx: Context): Boolean =

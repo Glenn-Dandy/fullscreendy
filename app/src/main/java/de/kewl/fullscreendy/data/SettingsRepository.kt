@@ -43,6 +43,7 @@ class SettingsRepository(private val context: Context) {
         val IGNORE_FONT_SCALE = booleanPreferencesKey("ignore_font_scale")
         val TTS_ENABLED = booleanPreferencesKey("tts_enabled")
         val MEDIA_ENABLED = booleanPreferencesKey("media_enabled")
+        val SOUNDS_TREE_URI = stringPreferencesKey("sounds_tree_uri")
         val ZOOM_ENABLED = booleanPreferencesKey("zoom_enabled")
         val PULL_TO_REFRESH = booleanPreferencesKey("pull_to_refresh")
         val WEB_MIC = booleanPreferencesKey("web_mic_enabled")
@@ -76,6 +77,7 @@ class SettingsRepository(private val context: Context) {
             ignoreSystemFontScale = p[Keys.IGNORE_FONT_SCALE] ?: defaults.ignoreSystemFontScale,
             ttsEnabled = p[Keys.TTS_ENABLED] ?: defaults.ttsEnabled,
             mediaEnabled = p[Keys.MEDIA_ENABLED] ?: defaults.mediaEnabled,
+            soundsTreeUri = p[Keys.SOUNDS_TREE_URI] ?: defaults.soundsTreeUri,
             zoomEnabled = p[Keys.ZOOM_ENABLED] ?: defaults.zoomEnabled,
             pullToRefresh = p[Keys.PULL_TO_REFRESH] ?: defaults.pullToRefresh,
             webMicEnabled = p[Keys.WEB_MIC] ?: defaults.webMicEnabled,
@@ -109,6 +111,7 @@ class SettingsRepository(private val context: Context) {
             p[Keys.IGNORE_FONT_SCALE] = s.ignoreSystemFontScale
             p[Keys.TTS_ENABLED] = s.ttsEnabled
             p[Keys.MEDIA_ENABLED] = s.mediaEnabled
+            p[Keys.SOUNDS_TREE_URI] = s.soundsTreeUri
             p[Keys.ZOOM_ENABLED] = s.zoomEnabled
             p[Keys.PULL_TO_REFRESH] = s.pullToRefresh
             p[Keys.WEB_MIC] = s.webMicEnabled

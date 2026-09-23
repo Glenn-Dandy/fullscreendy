@@ -133,9 +133,11 @@ Basis: `<Basis-Topic>/<Geräte-ID>`, im Beispiel `fhem/tablet/tablet1`.
 | `cmd/unlock` | (egal) | weckt & löst den (unsicheren) Sperrbildschirm |
 | `cmd/vibrate` | Dauer in ms (leer = 200) | Vibrations-Feedback, max. 5000 ms |
 
-**Töne:** Dateien in den öffentlichen Ordner **`/sdcard/FullScreendy/`** kopieren
-(über Dateimanager/USB erreichbar). Vorher einmalig **Einstellungen → System →
-„Dateizugriff erlauben"** erteilen. Dann per `cmd/mediaplay ding.mp3` abspielen.
+**Töne:** Unter *Einstellungen → Töne* den Ordner mit den Tondateien auswählen. Über die
+Android-Ordnerauswahl bekommt die App **genau diesen Ordner** und braucht überhaupt keine
+Speicher-Berechtigung. Abgespielt wird per `cmd/mediaplay ding.mp3`, Unterordner mit `/`.
+`http…`-URLs werden gestreamt. Ohne Auswahl nutzt die App ihren eigenen Ordner
+(`Android/data/de.kewl.fullscreendy/files/sounds`).
 `http…`-URLs werden gestreamt, Pfade mit `/` als absolute Datei behandelt.
 
 ---
@@ -260,8 +262,6 @@ Berechtigungen zeigen ein „✓"):
 - **Geräteadmin aktivieren** → nötig für `cmd/lock` und „Bildschirm ausschalten".
 - **Helligkeitssteuerung erlauben** (WRITE_SETTINGS) → echte Hardware-Helligkeit
   über den vollen Bereich (behebt „nur bis ~60 %").
-- **Dateizugriff erlauben** (All-Files-Access) → damit die App Tondateien aus
-  `/sdcard/FullScreendy/` lesen kann.
 - **Akku-Optimierung deaktivieren** → damit Android die App im Hintergrund nicht killt.
 - **Über anderen Apps anzeigen** → lässt den Dienst das Dashboard automatisch wieder
   in den Vordergrund holen, falls Android die App je wegen Speichermangel beendet
@@ -365,7 +365,7 @@ Wenn die App dennoch „irgendwann weg" ist:
   Prozess-Endes (z. B. `CRASH`, `ANR`, `LOW_MEMORY`, `USER_REQUESTED`, `SIGNALED`).
 - **Log-Datei** mit Heartbeat (alle 30 min, inkl. Speicher: `heap=…/… frei=… lowMemory=…`),
   Start/Stopp, Cold-Restart und Crash-Stacktraces:
-  `Android/data/de.kewl.fullscreendy/files/logs/app.log` (per „Dateizugriff
+  `Android/data/de.kewl.fullscreendy/files/logs/app.log` (per USB/adb
   erlauben" + Dateimanager oder `adb pull` erreichbar).
 
 **Grüner Punkt in der Statusleiste:** Das ist Androids Datenschutz-Indikator –
