@@ -50,6 +50,7 @@ class SettingsRepository(private val context: Context) {
         val RELOAD_INTERVAL = intPreferencesKey("reload_interval_mins")
         val START_ON_BOOT = booleanPreferencesKey("start_on_boot")
         val LANGUAGE = stringPreferencesKey("language")
+        val UPDATE_CHECK = booleanPreferencesKey("update_check_enabled")
         val PIN_ENABLED = booleanPreferencesKey("pin_enabled")
         val ADMIN_PIN = stringPreferencesKey("admin_pin")
     }
@@ -84,6 +85,7 @@ class SettingsRepository(private val context: Context) {
             reloadIntervalMins = p[Keys.RELOAD_INTERVAL] ?: defaults.reloadIntervalMins,
             startOnBoot = p[Keys.START_ON_BOOT] ?: defaults.startOnBoot,
             language = p[Keys.LANGUAGE] ?: defaults.language,
+            updateCheckEnabled = p[Keys.UPDATE_CHECK] ?: defaults.updateCheckEnabled,
             pinEnabled = p[Keys.PIN_ENABLED] ?: defaults.pinEnabled,
             adminPin = p[Keys.ADMIN_PIN] ?: defaults.adminPin,
         )
@@ -118,6 +120,7 @@ class SettingsRepository(private val context: Context) {
             p[Keys.RELOAD_INTERVAL] = s.reloadIntervalMins
             p[Keys.START_ON_BOOT] = s.startOnBoot
             p[Keys.LANGUAGE] = s.language
+            p[Keys.UPDATE_CHECK] = s.updateCheckEnabled
             p[Keys.PIN_ENABLED] = s.pinEnabled
             p[Keys.ADMIN_PIN] = s.adminPin
         }

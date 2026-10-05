@@ -362,12 +362,15 @@ motion detection is off.
 ---
 
 ## Updates
-The app checks GitHub Releases when you open *About*: stable builds look for the latest
-stable release, dev builds also consider pre-releases. If a newer version exists you can
-**download and install** it right from the About screen – with a progress bar in percent
-(allow “install unknown apps” once). *About* also shows app/Android version, IP address
-and device ID, and links to **star the project on GitHub**, the **source code** and
-**support the project**.
+The app does **not** check for updates on its own. Under *Settings → System* you can turn
+on *"Check for updates automatically"* (off by default); otherwise the *About* screen only
+checks when you tap **"Check for updates"**. Either way the request goes to
+`api.github.com` and compares against the latest release, which is the only connection the
+app makes besides your dashboard and MQTT broker. Downloading and installing happens in
+your browser or through F-Droid, the app never installs APKs itself.
+
+*About* also shows app/Android version, IP address and device ID, and links to **star the
+project on GitHub**, the **source code** and **support the project**.
 
 ---
 

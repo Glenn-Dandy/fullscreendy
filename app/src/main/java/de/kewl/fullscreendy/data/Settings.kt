@@ -56,6 +56,12 @@ data class Settings(
     /** UI-Sprache: "en" (Standard) oder "de". */
     val language: String = "en",
     /**
+     * Automatische Update-Prüfung beim Öffnen der Über-Seite. Standard **aus**: Sie
+     * kontaktiert api.github.com, also eine Gegenstelle außerhalb von Dashboard und
+     * Broker. Aus bedeutet, dass nur auf Knopfdruck geprüft wird.
+     */
+    val updateCheckEnabled: Boolean = false,
+    /**
      * PIN-Abfrage vor den Einstellungen. Standard **aus**: Auf einem Wandtablet im
      * eigenen Zuhause ist die Abfrage bei jedem Handgriff lästiger als nützlich –
      * wer sie braucht, schaltet sie unter System ein.

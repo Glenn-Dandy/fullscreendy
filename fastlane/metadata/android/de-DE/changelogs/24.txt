@@ -1,0 +1,2 @@
+• Die Update-Prüfung ist ab Werk aus. Die Über-Seite fragt bei GitHub nur noch nach, wenn du auf „Nach Updates suchen" tippst; automatisch geht es nur, wenn du es unter System einschaltest. Ohne das spricht die App ausschließlich mit deinem Dashboard und deinem MQTT-Broker.
+• Beim Start fragt die App nur noch die Benachrichtigungs-Berechtigung ab. Kamera und Mikrofon werden erst dort erfragt, wo man die jeweilige Funktion einschaltet.

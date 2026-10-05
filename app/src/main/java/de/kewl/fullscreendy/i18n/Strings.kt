@@ -230,6 +230,16 @@ class Strings(private val lang: AppLang) {
     val updateUpToDate get() = t("You have the latest version", "Du hast die neueste Version")
     val updateAvailable get() = t("Update available:", "Update verfügbar:")
     val updateCheckAgain get() = t("Check again", "Erneut prüfen")
+    val updateCheckNow get() = t("Check for updates", "Nach Updates suchen")
+    val updateCheckAuto get() = t("Check for updates automatically", "Automatisch nach Updates suchen")
+    val updateCheckAutoHint get() = t(
+        "When the About screen opens, ask api.github.com for the latest release. Off: only when you tap the button. This is the only connection the app makes besides your dashboard and broker.",
+        "Beim Öffnen der Über-Seite api.github.com nach der neuesten Version fragen. Aus: nur auf Knopfdruck. Das ist die einzige Verbindung der App außerhalb von Dashboard und Broker."
+    )
+    val updateNetworkHint get() = t(
+        "Contacts api.github.com.",
+        "Kontaktiert api.github.com."
+    )
     val updateOpenPage get() = t("Open release page", "Zur Release-Seite")
     val updateError get() = t("Update check failed", "Update-Prüfung fehlgeschlagen")
     val appVersionLabel get() = t("App version", "App-Version")

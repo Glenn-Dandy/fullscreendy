@@ -23,4 +23,6 @@ Periodic reload against WebView memory growth, memory released under pressure, a
 • Modify system settings — real hardware brightness over the full range.
 • All files access — reads sound files from the FullScreendy folder.
 
+The app only talks to the dashboard and the MQTT broker you configure. The one exception is optional and off by default: if you turn on the update check, the About screen asks api.github.com whether a newer release exists. Nothing is downloaded or installed by the app itself.
+
 Free software, MIT licensed. Interface in English and German.

@@ -646,6 +646,10 @@ private fun SystemSection(draft: Settings, s: Strings, onChange: (Settings) -> U
     SectionCard {
         SwitchRow(s.startOnBoot, draft.startOnBoot) { onChange(draft.copy(startOnBoot = it)) }
         RowDivider()
+        SwitchRow(s.updateCheckAuto, draft.updateCheckEnabled, hint = s.updateCheckAutoHint) {
+            onChange(draft.copy(updateCheckEnabled = it))
+        }
+        RowDivider()
         SwitchRow(s.pinProtection, draft.pinEnabled, hint = s.pinProtectionHint) {
             onChange(draft.copy(pinEnabled = it))
         }

@@ -1,0 +1,2 @@
+• The update check is off by default. The About screen only asks GitHub when you tap "Check for updates"; automatic checking has to be enabled under System. Without it, the app talks to your dashboard and MQTT broker only.
+• On startup the app only asks for the notification permission. Camera and microphone are requested where you enable the feature that needs them.

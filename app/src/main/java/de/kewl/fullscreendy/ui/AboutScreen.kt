@@ -57,6 +57,8 @@ import kotlinx.coroutines.withContext
 
 /** Zustand der Update-Prüfung inkl. Download-Rückmeldung. */
 private sealed interface UpdateUi {
+    /** Noch nicht geprüft: Die automatische Prüfung ist aus, es wartet auf den Knopf. */
+    data object Idle : UpdateUi
     data object Checking : UpdateUi
     data object UpToDate : UpdateUi
     data class Available(val info: UpdateInfo) : UpdateUi
@@ -70,7 +72,11 @@ fun AboutScreen(settings: Settings, onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val ip = remember { DeviceInfo.ipv4() }
 
-    var state by remember { mutableStateOf<UpdateUi>(UpdateUi.Checking) }
+    var state by remember {
+        mutableStateOf<UpdateUi>(
+            if (settings.updateCheckEnabled) UpdateUi.Checking else UpdateUi.Idle
+        )
+    }
 
     fun openUrl(url: String) {
         runCatching {
@@ -89,8 +95,9 @@ fun AboutScreen(settings: Settings, onBack: () -> Unit) {
         state = if (info != null) UpdateUi.Available(info) else UpdateUi.UpToDate
     }
 
-    // Beim Öffnen einmal automatisch prüfen.
-    LaunchedEffect(Unit) { check() }
+    // Nur prüfen, wenn der Nutzer es eingeschaltet hat: Der Aufruf geht an
+    // api.github.com, also an eine Gegenstelle außerhalb von Dashboard und Broker.
+    LaunchedEffect(Unit) { if (settings.updateCheckEnabled) check() }
 
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -115,6 +122,13 @@ fun AboutScreen(settings: Settings, onBack: () -> Unit) {
 
                 SectionCard(s.aboutUpdate) {
                     when (val st = state) {
+                        UpdateUi.Idle -> {
+                            Text(s.updateNetworkHint, style = MaterialTheme.typography.bodySmall)
+                            ActionRow(Icons.Filled.Refresh, s.updateCheckNow, showArrow = false) {
+                                scope.launch { check() }
+                            }
+                        }
+
                         UpdateUi.Checking -> Row(verticalAlignment = Alignment.CenterVertically) {
                             CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                             Spacer(Modifier.width(16.dp))

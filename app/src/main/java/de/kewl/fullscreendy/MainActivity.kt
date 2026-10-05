@@ -145,15 +145,18 @@ class MainActivity : ComponentActivity() {
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
     }
 
+    /**
+     * Beim Start wird nur abgefragt, was der Grundbetrieb braucht: die Benachrichtigung
+     * des Vordergrund-Dienstes. Kamera und Mikrofon gehören zu optionalen Funktionen
+     * (Bewegungserkennung, Wecken bei Ton, Sprachsteuerung) und werden dort abgefragt,
+     * wo man sie einschaltet: in den Einstellungen.
+     */
     private fun requestPermissions() {
-        val needed = mutableListOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            needed += Manifest.permission.POST_NOTIFICATIONS
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        val notifications = Manifest.permission.POST_NOTIFICATIONS
+        if (ContextCompat.checkSelfPermission(this, notifications) != PackageManager.PERMISSION_GRANTED) {
+            permissionLauncher.launch(arrayOf(notifications))
         }
-        val missing = needed.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
-        if (missing.isNotEmpty()) permissionLauncher.launch(missing.toTypedArray())
     }
 
     private fun startKioskService() {

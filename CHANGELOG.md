@@ -3,6 +3,21 @@
 Alle nennenswerten Änderungen. Versionsschema: `MAJOR.MINOR.PATCH`,
 Vorabversionen als `-dev.N`.
 
+## 0.4.11 – 2026-10-05
+
+### Geändert
+- **Die Update-Prüfung ist standardmäßig aus.** Die Über-Seite fragt `api.github.com` nur
+  noch auf Knopfdruck; wer es automatisch möchte, schaltet es unter *System* ein. Damit
+  spricht die App im Auslieferungszustand ausschließlich mit Dashboard und Broker.
+- **Beim Start wird nur noch die Benachrichtigungs-Berechtigung abgefragt.** Kamera und
+  Mikrofon gehören zu optionalen Funktionen und werden dort erfragt, wo man sie
+  einschaltet, also in den Einstellungen.
+- `requestLegacyExternalStorage` aus dem Manifest entfernt, seit der SAF-Umstellung in
+  0.4.10 ohne Funktion.
+- README: Der Update-Abschnitt beschrieb noch den in 0.4.9 entfernten In-App-Download.
+
+(alles aus der F-Droid-Review, danke @linsui, @mezinster und @gitubpatrice)
+
 ## 0.4.10 – 2026-09-24
 
 ### Geändert
