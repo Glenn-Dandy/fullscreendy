@@ -21,7 +21,7 @@ Periodischer Reload gegen wachsenden WebView-Speicher, Speicherfreigabe bei Druc
 • Geräteadmin — nötig, um den Bildschirm zu sperren (cmd/lock und „Bildschirm ausschalten").
 • Über anderen Apps anzeigen — damit der Dienst das Dashboard zurückholen kann, wenn Android die App wegen Speichermangels beendet hat.
 • Systemeinstellungen ändern — echte Hardware-Helligkeit über den vollen Bereich.
-• Zugriff auf alle Dateien — liest die Sounddateien aus dem FullScreendy-Ordner.
+• Keine Speicher-Berechtigung: Der Sound-Ordner wird über die Android-Ordnerauswahl freigegeben, die App bekommt genau diesen Ordner.
 
 Die App spricht nur mit dem Dashboard und dem MQTT-Broker, die du einrichtest. Die einzige Ausnahme ist optional und standardmäßig aus: Wenn du die Update-Prüfung einschaltest, fragt die Über-Seite bei api.github.com nach, ob es eine neuere Version gibt. Heruntergeladen oder installiert wird nichts von der App selbst.
 
