@@ -207,6 +207,9 @@ fun KioskWebView(
                     } else 100
                     cacheMode = WebSettings.LOAD_DEFAULT
                     mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                    // Doppelt gesichert zum Manifest-Schalter: keine Safe-Browsing-Abfrage
+                    // bei Google für jede Dashboard-Adresse.
+                    safeBrowsingEnabled = false
                 }
                 controller.webView = this
             }

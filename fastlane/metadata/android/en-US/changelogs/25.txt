@@ -1,0 +1,2 @@
+• The WebView no longer talks to Google. Android enables Safe Browsing in every WebView by default, which reports each page address to Google; that is now switched off, together with the WebView usage metrics. Out of the box the app only connects to your dashboard and your MQTT broker.
+• Store description: the "All files access" line was wrong since 0.4.10 and now describes the folder picker.

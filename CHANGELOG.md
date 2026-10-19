@@ -3,6 +3,19 @@
 Alle nennenswerten Änderungen. Versionsschema: `MAJOR.MINOR.PATCH`,
 Vorabversionen als `-dev.N`.
 
+## 0.4.12 – 2026-10-19
+
+### Geändert
+- **Das WebView fragt nicht mehr bei Google nach.** Android schaltet im WebView
+  standardmäßig Safe Browsing ein, das bei jedem Seitenaufruf die Adresse an Google
+  meldet. Beides ist jetzt abgeschaltet, über `android.webkit.WebView.EnableSafeBrowsing`
+  im Manifest und zusätzlich über `safeBrowsingEnabled = false` am WebView selbst. Dazu
+  `android.webkit.WebView.MetricsOptOut`, womit die WebView-Nutzungsstatistik entfällt.
+  Damit spricht die App im Auslieferungszustand wirklich nur mit Dashboard und Broker.
+- Store-Beschreibung: Die Zeile „All files access“ war seit der SAF-Umstellung in 0.4.10
+  falsch und beschreibt nun die Ordnerauswahl.
+  (beides aus der F-Droid-Review, danke @linsui, @mezinster, @sookoothaii1 und @gitubpatrice)
+
 ## 0.4.11 – 2026-10-05
 
 ### Geändert

@@ -36,6 +36,15 @@
         android:theme="@style/Theme.FhemKiosk"
         android:usesCleartextTraffic="true">
 
+        <!-- Kein Google-Verkehr aus dem WebView: Safe Browsing fragt sonst bei jedem
+             Seitenaufruf bei Google nach, und die WebView-Statistik wird abgeschaltet. -->
+        <meta-data
+            android:name="android.webkit.WebView.EnableSafeBrowsing"
+            android:value="false" />
+        <meta-data
+            android:name="android.webkit.WebView.MetricsOptOut"
+            android:value="true" />
+
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode|smallestScreenSize|density"

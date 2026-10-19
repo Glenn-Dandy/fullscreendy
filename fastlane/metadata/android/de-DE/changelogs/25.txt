@@ -1,0 +1,2 @@
+• Das WebView spricht nicht mehr mit Google. Android schaltet in jedem WebView standardmäßig Safe Browsing ein, das jede aufgerufene Adresse an Google meldet; das ist jetzt aus, ebenso die WebView-Nutzungsstatistik. Ab Werk verbindet sich die App damit nur mit deinem Dashboard und deinem MQTT-Broker.
+• Store-Beschreibung: Die Zeile „All files access“ war seit 0.4.10 falsch und beschreibt jetzt die Ordnerauswahl.
